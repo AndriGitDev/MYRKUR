@@ -71,7 +71,6 @@ body, html {
     color: #777;
 }
 
-/* Styling for individual attack items in the list */
 .attack-item {
     padding: 10px 12px; /* Added more horizontal padding */
     border-bottom: 1px solid #f0f0f0;
@@ -169,3 +168,78 @@ body, html {
     padding-bottom: 120px; /* Adjust this based on overview-section's actual height */
     box-sizing: border-box;
 }
+/* ... (keep all existing styles) ... */
+
+/* Styles for the container of attack circles */
+#attack-type-counts {
+    display: flex;
+    flex-wrap: wrap; /* Allow circles to wrap to the next line */
+    justify-content: center; /* Center circles horizontally */
+    align-items: stretch; /* Make circles of same effective height if they wrap */
+    padding: 10px 0; /* Add some padding */
+    flex-grow: 1; /* Allow it to take available space if overview-content is flex */
+}
+
+.attack-circle {
+    width: 130px; /* Adjust width and height as needed */
+    height: 130px;
+    border-radius: 50%; /* Makes it a circle */
+    background-color: #34495e; /* Slightly lighter than overview background */
+    border: 2px solid #4a627a;
+    color: #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 10px; /* Space between circles */
+    padding: 10px;
+    box-sizing: border-box; /* Include padding and border in width/height */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease-in-out;
+}
+
+.attack-circle:hover {
+    transform: scale(1.05); /* Slight zoom on hover */
+}
+
+.attack-circle h5.circle-attack-name {
+    font-size: 0.9em; /* Smaller font for type name */
+    margin: 0 0 5px 0;
+    color: #ffffff; /* Brighter for the name */
+    font-weight: bold;
+}
+
+.attack-circle p.circle-attack-count {
+    font-size: 1.5em; /* Larger font for the count */
+    margin: 0 0 5px 0;
+    color: #1abc9c; /* Teal color for count, as before */
+    font-weight: bold;
+}
+
+.attack-circle p.circle-last-attack-time {
+    font-size: 0.75em; /* Smaller font for time */
+    margin: 0;
+    color: #bdc3c7; /* Lighter grey */
+}
+
+.attack-circle p.circle-last-attack-time span {
+    font-weight: normal; /* Reset bold if it was inherited */
+    color: #bdc3c7; /* Ensure this specific span is also styled if needed */
+}
+
+/* Ensure overview-content gives enough space to attack-type-counts if they are side-by-side */
+/* If #attack-type-counts is the only main content in .overview-content, this might not be needed */
+/* .overview-content #attack-type-counts {
+    flex-basis: 100%; /* If circles take full width of overview content area */
+} */
+
+/* Keep your existing #overview-section and .overview-content styles.
+   You may need to adjust padding or height of #overview-section
+   and the padding-bottom of .app-container.
+*/
+/* Example: If #overview-section becomes taller:
+.app-container {
+    padding-bottom: 180px; /* Increase if overview is taller */
+}
+*/
