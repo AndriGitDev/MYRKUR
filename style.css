@@ -228,18 +228,3 @@ body, html {
     color: #bdc3c7; /* Ensure this specific span is also styled if needed */
 }
 
-/* Ensure overview-content gives enough space to attack-type-counts if they are side-by-side */
-/* If #attack-type-counts is the only main content in .overview-content, this might not be needed */
-/* .overview-content #attack-type-counts {
-    flex-basis: 100%; /* If circles take full width of overview content area */
-} */
-
-/* Keep your existing #overview-section and .overview-content styles.
-   You may need to adjust padding or height of #overview-section
-   and the padding-bottom of .app-container.
-*/
-/* Example: If #overview-section becomes taller:
-.app-container {
-    padding-bottom: 180px; /* Increase if overview is taller */
-}
-*/
