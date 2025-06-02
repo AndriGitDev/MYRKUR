@@ -102,3 +102,70 @@ body, html {
 .attack-item:last-child {
     border-bottom: none;
 }
+
+#overview-section {
+    background-color: #2c3e50; /* Dark blue-grey background */
+    color: #ecf0f1; /* Light text color */
+    padding: 15px 20px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    /* Fixed height or max-height if preferred, for now it'll be content-based */
+    width: 100%;
+    box-sizing: border-box;
+    position: fixed; /* Fixed at the bottom */
+    bottom: 0;
+    left: 0;
+    z-index: 1001; /* Ensure it's above the map but below modals if any added later */
+}
+
+#overview-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1.5em;
+    color: #ffffff;
+    border-bottom: 1px solid #34495e;
+    padding-bottom: 10px;
+}
+
+#overview-section h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+    color: #bdc3c7; /* Lighter grey for subheadings */
+}
+
+.overview-content {
+    display: flex;
+    justify-content: space-around; /* Distribute space between child elements */
+    align-items: flex-start; /* Align items to the top */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens if necessary */
+}
+
+#attack-type-counts {
+    flex-basis: 60%; /* Takes up more space */
+    /* margin-right: 20px; */ /* If you want specific spacing */
+}
+
+#last-attack-info {
+    flex-basis: 35%; /* Takes up less space */
+    text-align: right;
+}
+
+#attack-type-counts p, #last-attack-info p {
+    margin: 5px 0;
+    font-size: 0.95em;
+}
+
+#attack-type-counts span, #time-since-last-attack {
+    font-weight: bold;
+    color: #1abc9c; /* Teal color for numbers */
+}
+
+/* Adjust app-container to have padding-bottom to avoid overlap with fixed overview */
+.app-container {
+    display: flex;
+    height: 100%; /* This will be 100% of viewport minus overview height */
+    width: 100%;
+    padding-bottom: 120px; /* Adjust this based on overview-section's actual height */
+    box-sizing: border-box;
+}
