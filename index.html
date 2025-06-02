@@ -8,7 +8,7 @@
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
     <link rel="stylesheet" href="style.css">
-    </head>
+</head>
 <body>
 
     <header id="app-header">
@@ -20,12 +20,14 @@
             <nav class="header-links">
                 <a href="https://andri.is/is/" id="website-link" class="header-button" target="_blank" rel="noopener noreferrer">Website</a>
                 <a href="https://www.linkedin.com/in/andripetur/" id="linkedin-link" class="header-button" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="#" id="disclaimer-button" class="header-button">Disclaimer</a>
             </nav>
         </div>
     </header>
 
     <div class="app-container">
         <div id="map-container">
+            <div id="map-title">CyberAttack Simulator</div>
             </div>
         <div id="attack-list-container">
             <h2>Recent Attacks</h2>
@@ -47,6 +49,15 @@
                 <h4>Last Attack:</h4>
                 <p><span id="time-since-last-attack">N/A</span></p>
             </div>
+        </div>
+    </div>
+
+    <div id="disclaimer-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close-button">&times;</span>
+            <h2>Disclaimer</h2>
+            <p>All data displayed in this CyberAttack Simulator is entirely simulated and based on approximated internet sourced averages for illustrative and educational purposes only.</p>
+            <p>No real-time cyberattack data is used or represented. The events, sources, targets, and frequencies are not factual representations of actual incidents.</p>
         </div>
     </div>
 
