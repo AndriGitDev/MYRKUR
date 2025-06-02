@@ -87,10 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const fakeIpSegment = () => Math.floor(Math.random() * 255) + 1;
         const fakeSourceIp = `${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}`;
 
-        // MODIFIED: Update new attackStats structure and overallLastAttackTimestamp
         attackStats[type].count++;
         attackStats[type].lastAttackTimestamp = timestamp;
-        overallLastAttackTimestamp = timestamp; // For the global "Last Attack" display
+        overallLastAttackTimestamp = timestamp; 
 
         return {
             id: `attack-${timestamp.getTime()}-${Math.random().toString(16).slice(2)}`,
@@ -102,11 +101,106 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    function getAttackColor(severity) { /* ... (no change) ... */ }
-    function addAttackToList(attackData) { /* ... (no change) ... */ }
-    function drawAttackOnMap(attackData) { /* ... (no change) ... */ }
+    // === FULL FUNCTION DEFINITION ===
+    function getAttackColor(severity) {
+        switch(severity) {
+            case "Low": return '#4caf50'; // Green
+            case "Medium": return '#ffc107'; // Amber
+            case "High": return '#ff9800';   // Orange
+            case "Critical": return '#f44336'; // Red
+            default: return '#9e9e9e'; // Grey
+        }
+    }
 
-    // MODIFIED: Function to Update Overview UI (both circles and overall last attack)
+    // === FULL FUNCTION DEFINITION ===
+    function addAttackToList(attackData) {
+        const currentPlaceholder = document.querySelector('.attack-item-placeholder');
+        if (currentPlaceholder) {
+            currentPlaceholder.remove();
+        }
+
+        const listItem = document.createElement('li');
+        listItem.classList.add('attack-item');
+        listItem.setAttribute('data-attack-id', attackData.id);
+        const severityColor = getAttackColor(attackData.severity);
+
+        listItem.innerHTML = `
+            <strong>${attackData.attackType}</strong> <span style="color:${severityColor}; font-weight:bold;">(${attackData.severity})</span><br>
+            <small>From: ${attackData.sourceCountry} (IP: ${attackData.sourceIp})</small><br>
+            <small>Target: ${attackData.targetCity}, ${attackData.targetCountry}</small><br> 
+            <small>Time: ${attackData.timestamp.toLocaleTimeString()}</small>
+        `;
+        listItem.style.borderLeft = `4px solid ${severityColor}`;
+
+        if (attackListElement) {
+            attackListElement.insertBefore(listItem, attackListElement.firstChild);
+            if (attackListElement.children.length > MAX_LIST_ITEMS) {
+                attackListElement.removeChild(attackListElement.lastChild);
+            }
+        } else {
+            console.error("Error: attack-list element not found in HTML for addAttackToList.");
+        }
+    }
+
+    // === FULL FUNCTION DEFINITION ===
+    function drawAttackOnMap(attackData) {
+        const sourceLatLng = L.latLng(attackData.sourceCoords.lat, attackData.sourceCoords.lng);
+        const targetLatLng = L.latLng(attackData.targetCoords.lat, attackData.targetCoords.lng);
+
+        const lineColor = getAttackColor(attackData.severity);
+
+        const polyline = L.polyline([sourceLatLng, targetLatLng], {
+            color: lineColor,
+            weight: 2,
+            opacity: 0.7
+        }).addTo(map); 
+        
+        const sourceMarker = L.circleMarker(sourceLatLng, {
+            radius: 4,
+            fillColor: lineColor,
+            color: "#fff",
+            weight: 1,
+            opacity: 0.8,
+            fillOpacity: 0.7
+        }).addTo(map);
+        
+        const targetPulse = L.circleMarker(targetLatLng, {
+            radius: 8,
+            fillColor: lineColor,
+            color: lineColor,
+            weight: 2,
+            opacity: 0.8,
+            fillOpacity: 0.5
+        }).addTo(map);
+
+        let pulseRadius = 8;
+        let pulseOpacity = 0.5;
+        const pulseInterval = setInterval(() => {
+            pulseRadius += 4;
+            pulseOpacity -= 0.05;
+            if (pulseOpacity <= 0) {
+                map.removeLayer(targetPulse);
+                clearInterval(pulseInterval);
+            } else {
+                targetPulse.setRadius(pulseRadius);
+                targetPulse.setStyle({fillOpacity: pulseOpacity, opacity: pulseOpacity});
+            }
+        }, 50);
+
+        const attackVisualization = {
+            id: attackData.id,
+            line: polyline,
+            sourceMarker: sourceMarker
+        };
+        displayedMapAttacks.push(attackVisualization);
+
+        if (displayedMapAttacks.length > MAX_MAP_LINES) {
+            const oldestAttack = displayedMapAttacks.shift();
+            map.removeLayer(oldestAttack.line);
+            map.removeLayer(oldestAttack.sourceMarker);
+        }
+    }
+
     function formatTimeSince(timestamp) {
         if (!timestamp) return "N/A";
         const now = new Date();
@@ -120,7 +214,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     function updateOverviewUI() {
-        // Update attack type stats in circles
         attackTypes.forEach(type => {
             const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
             const countElement = document.getElementById(`count-${typeId}`);
@@ -134,7 +227,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Update overall "time since last attack" (if element exists)
         if (overallTimeSinceLastAttackElement) {
             if (overallLastAttackTimestamp) {
                 const now = new Date();
