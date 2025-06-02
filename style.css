@@ -64,3 +64,41 @@ body, html {
 .attack-item:last-child {
     border-bottom: none;
 }
+
+.attack-item-placeholder {
+    padding: 8px 0;
+    font-style: italic;
+    color: #777;
+}
+
+/* Styling for individual attack items in the list */
+.attack-item {
+    padding: 10px 12px; /* Added more horizontal padding */
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9em;
+    line-height: 1.4; /* Improved readability */
+    background-color: #fff; /* Ensure it's white if not default */
+    margin-bottom: 5px; /* Add some space between items */
+    border-radius: 3px; /* Slightly rounded corners */
+    /* border-left: 4px solid #1a237e; /* Default accent color, will be overridden by JS */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.attack-item:hover {
+    background-color: #f9f9f9; /* Slight hover effect */
+}
+
+.attack-item strong {
+    font-size: 1.05em;
+    color: #2c3e50; /* Darker color for attack type */
+}
+
+.attack-item small {
+    color: #555; /* Slightly lighter color for details */
+    display: block; /* Make small tags take full width */
+    margin-top: 3px;
+}
+
+.attack-item:last-child {
+    border-bottom: none;
+}
