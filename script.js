@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: "Unknown Attacker Group", latitude: 20.0, longitude: 0.0, weight: 1 }
     ];
 
-    // CORRECTED: Initialize targetCities with actual data
     const targetCities = [
         { name: "Reykjavik", latitude: 64.1466, longitude: -21.9426, weight: 8 },
         { name: "Akureyri", latitude: 65.6835, longitude: -18.1000, weight: 2 }
@@ -34,21 +33,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Overview Section Variables & Initialization ---
     const attackStats = {};
     let overallLastAttackTimestamp = null;
-    const sourceCountryStats = {};
+    const sourceCountryStats = {}; // Will store counts like {"Russia": { count: 0 }, ...}
 
     const attackCountsContainer = document.getElementById('attack-type-counts');
     const overallTimeSinceLastAttackElement = document.getElementById('time-since-last-attack');
     const countryAttackStatsContainer = document.getElementById('country-attack-stats');
 
-    // CORRECTED: Initialize attack type stats and create HTML for circles (from Step 7)
+    // Initialize attack type stats and create HTML for circles
     attackTypes.forEach(type => {
         attackStats[type] = { count: 0, lastAttackTimestamp: null };
         const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-
         const circleDiv = document.createElement('div');
         circleDiv.classList.add('attack-circle');
         circleDiv.setAttribute('data-attack-type', typeId);
-
         circleDiv.innerHTML = `
             <h5 class="circle-attack-name">${type}</h5>
             <p class="circle-attack-count" id="count-${typeId}">0</p>
@@ -61,21 +58,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Initialize source country stats and create HTML elements for them (from Step 8)
-    if (countryAttackStatsContainer) {
-        sourceCountries.forEach(country => {
-            sourceCountryStats[country.name] = { count: 0 };
-            const countryId = country.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-            
-            const countryStatElement = document.createElement('div');
-            countryStatElement.classList.add('country-stat-item');
-            countryStatElement.innerHTML = `
-                <span class="country-name">${country.name}:</span> 
-                <span class="country-count" id="country-count-${countryId}">0</span>
-            `;
-            countryAttackStatsContainer.appendChild(countryStatElement);
-        });
-    }
+    // MODIFIED: Initialize sourceCountryStats (data only).
+    // DOM elements for country list will be created by updateOverviewUI.
+    sourceCountries.forEach(country => {
+        sourceCountryStats[country.name] = { count: 0 };
+    });
     // --- END: Overview Section Initialization ---
 
     const attackListElement = document.getElementById('attack-list');
@@ -86,9 +73,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function getRandomElement(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
     function getRandomWeightedElement(weightedArr) {
-        if (!weightedArr || weightedArr.length === 0) { // Guard against empty array
+        if (!weightedArr || weightedArr.length === 0) {
             console.error("Attempted to get random weighted element from empty or undefined array.");
-            return null; 
+            return null;
         }
         let totalWeight = weightedArr.reduce((sum, item) => sum + (item.weight || 1), 0);
         let randomNum = Math.random() * totalWeight;
@@ -97,47 +84,42 @@ document.addEventListener('DOMContentLoaded', function () {
             if (randomNum < weight) { return item; }
             randomNum -= weight;
         }
-        return weightedArr[weightedArr.length - 1]; // Fallback
+        return weightedArr[weightedArr.length - 1];
     }
 
     function generateSimulatedAttack() {
         const source = getRandomWeightedElement(sourceCountries);
-        const chosenTargetCity = getRandomWeightedElement(targetCities);
+        let chosenTargetCity = getRandomWeightedElement(targetCities);
 
-        // CRITICAL CHECK: Ensure targetCities was populated and getRandomWeightedElement didn't return null
+        if (!source) {
+            console.error("Failed to get a source country. Skipping attack generation.");
+            return null;
+        }
         if (!chosenTargetCity) {
-            console.error("Failed to get a target city. Simulation might halt or behave unexpectedly.");
-            // Potentially return null or throw an error to stop this specific attack generation
-            // For now, let's try to default to Reykjavik if something went wrong, though the root cause should be fixed.
-            // This is a fallback, ideally targetCities should always be valid.
+            console.warn("Failed to get a target city. Defaulting to Reykjavik.");
             chosenTargetCity = targetCities[0] || { name: "Reykjavik", latitude: 64.1466, longitude: -21.9426 };
         }
-        if (!source) {
-            console.error("Failed to get a source country.");
-            return null; // Stop this attack generation
-        }
-
 
         const type = getRandomElement(attackTypes);
         const timestamp = new Date();
         const severityLevels = ["Low", "Medium", "High", "Critical"];
         const severity = getRandomElement(severityLevels);
-        
-        // CORRECTED: Clean fake IP generation
         const fakeIpSegment = () => Math.floor(Math.random() * 255) + 1;
         const fakeSourceIp = `${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}`;
 
         attackStats[type].count++;
         attackStats[type].lastAttackTimestamp = timestamp;
-        overallLastAttackTimestamp = timestamp; 
+        overallLastAttackTimestamp = timestamp;
 
         if (sourceCountryStats[source.name]) {
             sourceCountryStats[source.name].count++;
         } else {
-            console.warn(`Source country ${source.name} not pre-initialized for stats.`);
+            // This handles if a new country not in sourceCountries list is somehow generated as a source
+            // For current setup, this isn't expected as getRandomWeightedElement picks from sourceCountries
+            sourceCountryStats[source.name] = { count: 1 };
+            console.warn(`Source country ${source.name} was not pre-initialized for stats. Added dynamically.`);
         }
-        
-        // CORRECTED: Clean ID generation
+
         return {
             id: `attack-${timestamp.getTime()}-${Math.random().toString(16).slice(2)}`,
             sourceCountry: source.name, sourceCoords: { lat: source.latitude, lng: source.longitude },
@@ -148,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // === RESTORED FUNCTION DEFINITION ===
     function getAttackColor(severity) {
         switch(severity) {
             case "Low": return '#4caf50';
@@ -159,9 +140,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // === RESTORED FUNCTION DEFINITION ===
     function addAttackToList(attackData) {
-        if (!attackData) return; // Don't proceed if attackData is null
+        if (!attackData) return;
 
         const currentPlaceholder = document.querySelector('.attack-item-placeholder');
         if (currentPlaceholder) {
@@ -191,10 +171,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // === RESTORED FUNCTION DEFINITION ===
     function drawAttackOnMap(attackData) {
-        if (!attackData) return; // Don't proceed if attackData is null
-
+        if (!attackData) return;
+        // ... (rest of drawAttackOnMap function as provided in Step 8 / full corrected script) ...
         const sourceLatLng = L.latLng(attackData.sourceCoords.lat, attackData.sourceCoords.lng);
         const targetLatLng = L.latLng(attackData.targetCoords.lat, attackData.targetCoords.lng);
         const lineColor = getAttackColor(attackData.severity);
@@ -227,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // === RESTORED FUNCTION DEFINITION ===
     function formatTimeSince(timestamp) {
         if (!timestamp) return "N/A";
         const now = new Date();
@@ -247,25 +225,42 @@ document.addEventListener('DOMContentLoaded', function () {
             const countElement = document.getElementById(`count-${typeId}`);
             const timeSinceElement = document.getElementById(`time-since-${typeId}`);
 
-            if (countElement && attackStats[type]) { // Added check for attackStats[type]
+            if (countElement && attackStats[type]) {
                 countElement.innerText = attackStats[type].count;
             }
-            if (timeSinceElement && attackStats[type]) { // Added check for attackStats[type]
+            if (timeSinceElement && attackStats[type]) {
                 timeSinceElement.innerText = formatTimeSince(attackStats[type].lastAttackTimestamp);
             }
         });
 
-        // Update source country counts
-        for (const countryName in sourceCountryStats) {
-            const countryId = countryName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-            const countElement = document.getElementById(`country-count-${countryId}`);
-            if (countElement) {
-                countElement.innerText = sourceCountryStats[countryName].count;
+        // MODIFIED: Update source country counts (leaderboard style)
+        if (countryAttackStatsContainer) {
+            const sortedCountries = [];
+            for (const countryName in sourceCountryStats) {
+                sortedCountries.push({
+                    name: countryName,
+                    count: sourceCountryStats[countryName].count
+                });
             }
+
+            sortedCountries.sort((a, b) => b.count - a.count);
+
+            const existingItems = countryAttackStatsContainer.querySelectorAll('.country-stat-item');
+            existingItems.forEach(item => item.remove());
+
+            sortedCountries.forEach(country => {
+                const countryId = country.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+                const countryStatElement = document.createElement('div');
+                countryStatElement.classList.add('country-stat-item');
+                countryStatElement.innerHTML = `
+                    <span class="country-name">${country.name}:</span>
+                    <span class="country-count" id="country-count-${countryId}">${country.count}</span>
+                `;
+                countryAttackStatsContainer.appendChild(countryStatElement);
+            });
         }
 
         // Update overall "time since last attack" 
-        // CORRECTED: Clean string update
         if (overallTimeSinceLastAttackElement) {
             if (overallLastAttackTimestamp) {
                 const now = new Date();
@@ -290,15 +285,13 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("Starting cyberattack simulation...");
         setInterval(() => {
             const newAttack = generateSimulatedAttack();
-            if (newAttack) { // Check if newAttack is not null
+            if (newAttack) {
                 addAttackToList(newAttack);
                 drawAttackOnMap(newAttack);
             }
-            updateOverviewUI(); // Update UI even if newAttack was null, to refresh timers
+            updateOverviewUI(); 
         }, simulationInterval);
-
-        // Separate interval to keep the "time since last attack" fresh for overview items
-        setInterval(updateOverviewUI, 1000); 
+        setInterval(updateOverviewUI, 1000);
     }
     startSimulation();
 });

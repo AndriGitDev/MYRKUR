@@ -3,34 +3,37 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    height: 100vh; /* Full viewport height */
-    width: 100vw; /* Full viewport width */
-    overflow: hidden; /* Prevent scrollbars on the body itself */
-    background-color: #f0f0f0; /* Light grey background for the page */
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: #f0f0f0;
     color: #333;
 }
 
 .app-container {
-    display: flex; /* Arrange map and list side-by-side */
+    display: flex;
     height: 100%;
     width: 100%;
+    /* Ensure padding-bottom is enough for the overview section */
+    padding-bottom: 160px; /* Adjust if overview section height changes */
+    box-sizing: border-box;
 }
 
 #map-container {
-    flex-grow: 1; /* Map takes up available space */
+    flex-grow: 1;
     height: 100%;
-    border-right: 2px solid #ccc; /* Separator line */
-    background-color: #e0e0e0; /* Placeholder background for map area */
+    border-right: 2px solid #ccc;
+    background-color: #e0e0e0;
 }
 
 #attack-list-container {
-    width: 350px; /* Fixed width for the attack list */
+    width: 350px;
     height: 100%;
-    overflow-y: auto; /* Allow vertical scrolling if content exceeds height */
-    background-color: #ffffff; /* White background for the list area */
+    overflow-y: auto;
+    background-color: #ffffff;
     padding: 15px;
-    box-sizing: border-box; /* Padding and border included in width/height */
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1); /* Subtle shadow for separation */
+    box-sizing: border-box;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
 }
 
 #attack-list-container h2 {
@@ -38,33 +41,15 @@ body, html {
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
     font-size: 1.4em;
-    color: #1a237e; /* Dark blue for heading */
+    color: #1a237e;
 }
 
 #attack-list {
-    list-style-type: none; /* Remove default bullet points */
+    list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-/* Placeholder style for list items - we'll make this more detailed later */
-.attack-item-placeholder {
-    padding: 8px 0;
-    font-style: italic;
-    color: #777;
-}
-
-/* Future attack item styling will go here */
-.attack-item {
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0.9em;
-}
-
-.attack-item:last-child {
-    border-bottom: none;
-}
-
 .attack-item-placeholder {
     padding: 8px 0;
     font-style: italic;
@@ -72,29 +57,28 @@ body, html {
 }
 
 .attack-item {
-    padding: 10px 12px; /* Added more horizontal padding */
+    padding: 10px 12px;
     border-bottom: 1px solid #f0f0f0;
     font-size: 0.9em;
-    line-height: 1.4; /* Improved readability */
-    background-color: #fff; /* Ensure it's white if not default */
-    margin-bottom: 5px; /* Add some space between items */
-    border-radius: 3px; /* Slightly rounded corners */
-    /* border-left: 4px solid #1a237e; /* Default accent color, will be overridden by JS */
-    transition: background-color 0.3s ease; /* Smooth hover effect */
+    line-height: 1.4;
+    background-color: #fff;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
 }
 
 .attack-item:hover {
-    background-color: #f9f9f9; /* Slight hover effect */
+    background-color: #f9f9f9;
 }
 
 .attack-item strong {
     font-size: 1.05em;
-    color: #2c3e50; /* Darker color for attack type */
+    color: #2c3e50;
 }
 
 .attack-item small {
-    color: #555; /* Slightly lighter color for details */
-    display: block; /* Make small tags take full width */
+    color: #555;
+    display: block;
     margin-top: 3px;
 }
 
@@ -102,88 +86,53 @@ body, html {
     border-bottom: none;
 }
 
+/* Overview Section General Styles */
 #overview-section {
-    background-color: #2c3e50; /* Dark blue-grey background */
-    color: #ecf0f1; /* Light text color */
-    padding: 15px 20px;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 10px 20px; /* Adjusted padding */
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    /* Fixed height or max-height if preferred, for now it'll be content-based */
     width: 100%;
     box-sizing: border-box;
-    position: fixed; /* Fixed at the bottom */
+    position: fixed;
     bottom: 0;
     left: 0;
-    z-index: 1001; /* Ensure it's above the map but below modals if any added later */
+    z-index: 1001;
 }
 
-#overview-section h3 {
+#overview-section h3 { /* "Attack Statistics" heading */
     margin-top: 0;
     margin-bottom: 10px;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.3em; /* Slightly reduced */
     color: #ffffff;
     border-bottom: 1px solid #34495e;
-    padding-bottom: 10px;
+    padding-bottom: 8px; /* Slightly reduced */
 }
 
-#overview-section h4 {
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 1.1em;
-    color: #bdc3c7; /* Lighter grey for subheadings */
-}
-
+/* Container for the three parts of the overview */
 .overview-content {
     display: flex;
-    justify-content: space-around; /* Distribute space between child elements */
-    align-items: flex-start; /* Align items to the top */
-    flex-wrap: wrap; /* Allow wrapping on smaller screens if necessary */
+    justify-content: space-between; /* Distributes space between children */
+    align-items: flex-start;
+    flex-wrap: nowrap; /* Prevent wrapping of main sections for now */
 }
 
+/* Attack Type Circles Container */
 #attack-type-counts {
-    flex-basis: 60%; /* Takes up more space */
-    /* margin-right: 20px; */ /* If you want specific spacing */
-}
-
-#last-attack-info {
-    flex-basis: 35%; /* Takes up less space */
-    text-align: right;
-}
-
-#attack-type-counts p, #last-attack-info p {
-    margin: 5px 0;
-    font-size: 0.95em;
-}
-
-#attack-type-counts span, #time-since-last-attack {
-    font-weight: bold;
-    color: #1abc9c; /* Teal color for numbers */
-}
-
-/* Adjust app-container to have padding-bottom to avoid overlap with fixed overview */
-.app-container {
+    flex-basis: 50%; /* Circles take up a good portion */
     display: flex;
-    height: 100%; /* This will be 100% of viewport minus overview height */
-    width: 100%;
-    padding-bottom: 120px; /* Adjust this based on overview-section's actual height */
-    box-sizing: border-box;
-}
-
-/* Styles for the container of attack circles */
-#attack-type-counts {
-    display: flex;
-    flex-wrap: wrap; /* Allow circles to wrap to the next line */
-    justify-content: center; /* Center circles horizontally */
-    align-items: stretch; /* Make circles of same effective height if they wrap */
-    padding: 10px 0; /* Add some padding */
-    flex-grow: 1; /* Allow it to take available space if overview-content is flex */
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    padding: 5px 0; /* Reduced padding */
 }
 
 .attack-circle {
-    width: 110px; /* Adjust width and height as needed */
-    height: 110px;
-    border-radius: 50%; /* Makes it a circle */
-    background-color: #34495e; /* Slightly lighter than overview background */
+    width: 120px; /* Slightly reduced size */
+    height: 120px; /* Slightly reduced size */
+    border-radius: 50%;
+    background-color: #34495e;
     border: 2px solid #4a627a;
     color: #ecf0f1;
     display: flex;
@@ -191,108 +140,100 @@ body, html {
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin: 8px; /* Space between circles */
-    padding: 10px;
-    box-sizing: border-box; /* Include padding and border in width/height */
+    margin: 5px; /* Reduced margin */
+    padding: 8px; /* Reduced padding */
+    box-sizing: border-box;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     transition: transform 0.2s ease-in-out;
 }
-
 .attack-circle:hover {
-    transform: scale(1.05); /* Slight zoom on hover */
+    transform: scale(1.05);
 }
-
 .attack-circle h5.circle-attack-name {
-    font-size: 0.9em; /* Smaller font for type name */
-    margin: 0 0 5px 0;
-    color: #ffffff; /* Brighter for the name */
+    font-size: 0.85em;
+    margin: 0 0 4px 0;
+    color: #ffffff;
     font-weight: bold;
 }
-
 .attack-circle p.circle-attack-count {
-    font-size: 1.5em; /* Larger font for the count */
-    margin: 0 0 5px 0;
-    color: #1abc9c; /* Teal color for count, as before */
+    font-size: 1.4em;
+    margin: 0 0 4px 0;
+    color: #1abc9c;
     font-weight: bold;
 }
-
 .attack-circle p.circle-last-attack-time {
-    font-size: 0.75em; /* Smaller font for time */
+    font-size: 0.7em;
     margin: 0;
-    color: #bdc3c7; /* Lighter grey */
+    color: #bdc3c7;
 }
-
 .attack-circle p.circle-last-attack-time span {
-    font-weight: normal; /* Reset bold if it was inherited */
-    color: #bdc3c7; /* Ensure this specific span is also styled if needed */
+    font-weight: normal;
+    color: #bdc3c7;
 }
 
-/* ... (Keep all existing styles from before) ... */
-
-/* Adjust .overview-content to accommodate three items */
-.overview-content {
-    display: flex;
-    justify-content: space-between; /* Distribute space, or use space-around */
-    align-items: flex-start; 
-    flex-wrap: wrap; 
-}
-
-#attack-type-counts { /* Circles container */
-    flex-basis: 45%; /* Adjust as needed */
-    /* display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; padding: 10px 0; flex-grow: 1; */ /* Styles from before are good */
-}
-
-/* NEW: Styles for the country attack stats list */
+/* Country Attack Stats List (Leaderboard) */
 #country-attack-stats {
-    flex-basis: 25%; /* Adjust as needed */
-    padding: 0 15px; /* Add some padding */
+    flex-basis: 28%; /* Adjusted width */
+    padding: 0 10px; /* Reduced padding */
     box-sizing: border-box;
-    max-height: 150px; /* Example: Set a max height for scrolling if list is long */
-    overflow-y: auto; /* Add scroll if content overflows */
-    border-left: 1px solid #34495e; /* Optional separator */
-    border-right: 1px solid #34495e; /* Optional separator */
+    /* CSS Columns for two-column layout */
+    column-count: 2;
+    column-gap: 15px; /* Space between columns */
+    /* The container might grow taller to balance columns.
+       Ensure .app-container padding-bottom is sufficient. */
 }
 
-#country-attack-stats h4 {
-    /* margin-top: 0; (already in #overview-section h4) */
-    /* margin-bottom: 8px; */
-    /* font-size: 1.1em; */
-    /* color: #bdc3c7; */
-    text-align: center; /* Center the "Attacks by Source:" heading */
+#country-attack-stats h4 { /* "Attacks by Source:" heading */
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1em; /* Slightly reduced */
+    color: #bdc3c7;
+    text-align: center;
     padding-bottom: 5px;
     border-bottom: 1px solid #34495e;
+    column-span: all; /* Make heading span across columns */
+    -webkit-column-span: all; /* For Safari/Chrome */
 }
 
 .country-stat-item {
     display: flex;
-    justify-content: space-between; /* Puts name on left, count on right */
-    padding: 4px 0;
-    font-size: 0.9em;
-    border-bottom: 1px dashed #34495e; /* Light separator for items */
+    justify-content: space-between;
+    padding: 3px 0; /* Reduced padding */
+    font-size: 0.85em; /* Slightly reduced */
+    border-bottom: 1px dashed #34495e;
+    break-inside: avoid-column;
+    page-break-inside: avoid;
 }
 .country-stat-item:last-child {
     border-bottom: none;
 }
-
 .country-name {
-    color: #ecf0f1; 
+    color: #ecf0f1;
+    margin-right: 5px; /* Add some space before the count */
 }
-
 .country-count {
     font-weight: bold;
-    color: #e67e22; /* Orange color for country counts */
+    color: #e67e22; /* Orange color */
 }
 
-#last-attack-info { /* Overall last attack info */
-    flex-basis: 25%; /* Adjust as needed */
+/* Overall Last Attack Info */
+#last-attack-info {
+    flex-basis: 20%; /* Adjusted width */
     text-align: right;
-    padding-left: 15px; /* Add some padding */
+    padding-left: 10px; /* Reduced padding */
     box-sizing: border-box;
 }
-
-/* Ensure the .app-container padding-bottom is still adequate.
-   The overview section might not get taller if the country list scrolls,
-   but if it wraps on very small screens, it could.
-   You might need to adjust this value in .app-container:
-   padding-bottom: 120px; or more if needed
-*/
+#last-attack-info h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1em; /* Slightly reduced */
+    color: #bdc3c7;
+}
+#last-attack-info p {
+    margin: 5px 0;
+    font-size: 0.9em; /* Slightly reduced */
+}
+#time-since-last-attack { /* The actual time string */
+    font-weight: bold;
+    color: #1abc9c;
+}
