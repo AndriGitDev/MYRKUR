@@ -47,8 +47,7 @@ This project is primarily built with:
 
 You can see the live version deployed here:
 
-➡️ **[Link to your Netlify deployment (or other live site)]** ⬅️
-*(You'll need to replace the bracketed text above with your actual deployment URL!)*
+[Website](https://Myrkur.Andri.is/)
 
 ---
 
