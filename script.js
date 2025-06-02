@@ -12,37 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "SQL Injection", "Man-in-the-Middle", "Zero-Day Exploit"
     ];
 
-    // --- MODIFIED: Overview Section Variables & Initialization ---
-    const attackStats = {}; // Will store { "DDoS": { count: 0, lastAttackTimestamp: null }, ... }
-    let overallLastAttackTimestamp = null; // For the separate "Last Attack" display
-
-    const attackCountsContainer = document.getElementById('attack-type-counts'); // Container for circles
-    const overallTimeSinceLastAttackElement = document.getElementById('time-since-last-attack'); // For the overall last attack
-
-    // Initialize attack stats and create HTML elements for circles
-    attackTypes.forEach(type => {
-        attackStats[type] = { count: 0, lastAttackTimestamp: null };
-        const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-
-        const circleDiv = document.createElement('div');
-        circleDiv.classList.add('attack-circle');
-        // Add a data attribute for the type, useful for styling or selection if needed
-        circleDiv.setAttribute('data-attack-type', typeId);
-
-        circleDiv.innerHTML = `
-            <h5 class="circle-attack-name">${type}</h5>
-            <p class="circle-attack-count" id="count-${typeId}">0</p>
-            <p class="circle-last-attack-time">
-                Last: <span id="time-since-${typeId}">N/A</span>
-            </p>
-        `;
-        if (attackCountsContainer) {
-            attackCountsContainer.appendChild(circleDiv);
-        }
-    });
-    // --- END: Overview Section Variables ---
-
-    const sourceCountries = [
+    const sourceCountries = [ // Ensure this list is comprehensive for display
         { name: "Russia", latitude: 61.5240, longitude: 105.3188, weight: 3 },
         { name: "China", latitude: 35.8617, longitude: 104.1954, weight: 3 },
         { name: "USA", latitude: 38.9637, longitude: -95.7129, weight: 2 },
@@ -55,30 +25,62 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: "Unknown Attacker Group", latitude: 20.0, longitude: 0.0, weight: 1 }
     ];
 
-    const targetCities = [
-        { name: "Reykjavik", latitude: 64.1466, longitude: -21.9426, weight: 8 },
-        { name: "Akureyri", latitude: 65.6835, longitude: -18.1000, weight: 2 }
-    ];
+    // --- Overview Section Variables & Initialization ---
+    const attackStats = {}; 
+    let overallLastAttackTimestamp = null; 
+    const sourceCountryStats = {}; // NEW: To store counts like {"Russia": { count: 0 }, ...}
 
+    const attackCountsContainer = document.getElementById('attack-type-counts');
+    const overallTimeSinceLastAttackElement = document.getElementById('time-since-last-attack');
+    const countryAttackStatsContainer = document.getElementById('country-attack-stats'); // NEW: Container for country stats
+
+    // Initialize attack type stats and create HTML for circles
+    attackTypes.forEach(type => {
+        attackStats[type] = { count: 0, lastAttackTimestamp: null };
+        const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+        const circleDiv = document.createElement('div');
+        circleDiv.classList.add('attack-circle');
+        circleDiv.setAttribute('data-attack-type', typeId);
+        circleDiv.innerHTML = `
+            <h5 class="circle-attack-name">${type}</h5>
+            <p class="circle-attack-count" id="count-${typeId}">0</p>
+            <p class="circle-last-attack-time">
+                Last: <span id="time-since-${typeId}">N/A</span>
+            </p>
+        `;
+        if (attackCountsContainer) {
+            attackCountsContainer.appendChild(circleDiv);
+        }
+    });
+
+    // NEW: Initialize source country stats and create HTML elements for them
+    if (countryAttackStatsContainer) { // Check if the main container exists
+        sourceCountries.forEach(country => {
+            sourceCountryStats[country.name] = { count: 0 }; // Initialize count
+            const countryId = country.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+            
+            const countryStatElement = document.createElement('div');
+            countryStatElement.classList.add('country-stat-item');
+            countryStatElement.innerHTML = `
+                <span class="country-name">${country.name}:</span> 
+                <span class="country-count" id="country-count-${countryId}">0</span>
+            `;
+            countryAttackStatsContainer.appendChild(countryStatElement);
+        });
+    }
+    // --- END: Overview Section Initialization ---
+
+    const targetCities = [ /* ... (as before) ... */ ];
     const attackListElement = document.getElementById('attack-list');
     const MAX_LIST_ITEMS = 20;
     const MAX_MAP_LINES = 15;
     let displayedMapAttacks = [];
 
     function getRandomElement(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-    function getRandomWeightedElement(weightedArr) {
-        let totalWeight = weightedArr.reduce((sum, item) => sum + (item.weight || 1), 0);
-        let randomNum = Math.random() * totalWeight;
-        for (let item of weightedArr) {
-            const weight = item.weight || 1;
-            if (randomNum < weight) { return item; }
-            randomNum -= weight;
-        }
-        return weightedArr[weightedArr.length - 1];
-    }
+    function getRandomWeightedElement(weightedArr) { /* ... (as before) ... */ }
 
     function generateSimulatedAttack() {
-        const source = getRandomWeightedElement(sourceCountries);
+        const source = getRandomWeightedElement(sourceCountries); // source is { name: "Russia", ... }
         const chosenTargetCity = getRandomWeightedElement(targetCities);
         const type = getRandomElement(attackTypes);
         const timestamp = new Date();
@@ -87,133 +89,30 @@ document.addEventListener('DOMContentLoaded', function () {
         const fakeIpSegment = () => Math.floor(Math.random() * 255) + 1;
         const fakeSourceIp = `${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}`;
 
+        // Update attack type stats
         attackStats[type].count++;
         attackStats[type].lastAttackTimestamp = timestamp;
         overallLastAttackTimestamp = timestamp; 
 
-        return {
-            id: `attack-${timestamp.getTime()}-${Math.random().toString(16).slice(2)}`,
-            sourceCountry: source.name, sourceCoords: { lat: source.latitude, lng: source.longitude },
-            targetCity: chosenTargetCity.name, targetCountry: "Iceland",
-            targetCoords: { lat: chosenTargetCity.latitude, lng: chosenTargetCity.longitude },
-            attackType: type, timestamp: timestamp, severity: severity, sourceIp: fakeSourceIp,
-            description: `${type} from ${source.name} targeting ${chosenTargetCity.name}, Iceland. Severity: ${severity}. (IP: ${fakeSourceIp})`
-        };
-    }
-
-    // === FULL FUNCTION DEFINITION ===
-    function getAttackColor(severity) {
-        switch(severity) {
-            case "Low": return '#4caf50'; // Green
-            case "Medium": return '#ffc107'; // Amber
-            case "High": return '#ff9800';   // Orange
-            case "Critical": return '#f44336'; // Red
-            default: return '#9e9e9e'; // Grey
-        }
-    }
-
-    // === FULL FUNCTION DEFINITION ===
-    function addAttackToList(attackData) {
-        const currentPlaceholder = document.querySelector('.attack-item-placeholder');
-        if (currentPlaceholder) {
-            currentPlaceholder.remove();
-        }
-
-        const listItem = document.createElement('li');
-        listItem.classList.add('attack-item');
-        listItem.setAttribute('data-attack-id', attackData.id);
-        const severityColor = getAttackColor(attackData.severity);
-
-        listItem.innerHTML = `
-            <strong>${attackData.attackType}</strong> <span style="color:${severityColor}; font-weight:bold;">(${attackData.severity})</span><br>
-            <small>From: ${attackData.sourceCountry} (IP: ${attackData.sourceIp})</small><br>
-            <small>Target: ${attackData.targetCity}, ${attackData.targetCountry}</small><br> 
-            <small>Time: ${attackData.timestamp.toLocaleTimeString()}</small>
-        `;
-        listItem.style.borderLeft = `4px solid ${severityColor}`;
-
-        if (attackListElement) {
-            attackListElement.insertBefore(listItem, attackListElement.firstChild);
-            if (attackListElement.children.length > MAX_LIST_ITEMS) {
-                attackListElement.removeChild(attackListElement.lastChild);
-            }
+        // NEW: Update source country stats
+        if (sourceCountryStats[source.name]) {
+            sourceCountryStats[source.name].count++;
         } else {
-            console.error("Error: attack-list element not found in HTML for addAttackToList.");
+            // This case would happen if a country appears that's not in the initial sourceCountries list
+            // For simplicity, we're assuming all simulated sources are in the initial list
+            console.warn(`Source country ${source.name} not pre-initialized for stats.`);
         }
+
+        return { /* ... (return object as before, no changes needed here) ... */ };
     }
 
-    // === FULL FUNCTION DEFINITION ===
-    function drawAttackOnMap(attackData) {
-        const sourceLatLng = L.latLng(attackData.sourceCoords.lat, attackData.sourceCoords.lng);
-        const targetLatLng = L.latLng(attackData.targetCoords.lat, attackData.targetCoords.lng);
-
-        const lineColor = getAttackColor(attackData.severity);
-
-        const polyline = L.polyline([sourceLatLng, targetLatLng], {
-            color: lineColor,
-            weight: 2,
-            opacity: 0.7
-        }).addTo(map); 
-        
-        const sourceMarker = L.circleMarker(sourceLatLng, {
-            radius: 4,
-            fillColor: lineColor,
-            color: "#fff",
-            weight: 1,
-            opacity: 0.8,
-            fillOpacity: 0.7
-        }).addTo(map);
-        
-        const targetPulse = L.circleMarker(targetLatLng, {
-            radius: 8,
-            fillColor: lineColor,
-            color: lineColor,
-            weight: 2,
-            opacity: 0.8,
-            fillOpacity: 0.5
-        }).addTo(map);
-
-        let pulseRadius = 8;
-        let pulseOpacity = 0.5;
-        const pulseInterval = setInterval(() => {
-            pulseRadius += 4;
-            pulseOpacity -= 0.05;
-            if (pulseOpacity <= 0) {
-                map.removeLayer(targetPulse);
-                clearInterval(pulseInterval);
-            } else {
-                targetPulse.setRadius(pulseRadius);
-                targetPulse.setStyle({fillOpacity: pulseOpacity, opacity: pulseOpacity});
-            }
-        }, 50);
-
-        const attackVisualization = {
-            id: attackData.id,
-            line: polyline,
-            sourceMarker: sourceMarker
-        };
-        displayedMapAttacks.push(attackVisualization);
-
-        if (displayedMapAttacks.length > MAX_MAP_LINES) {
-            const oldestAttack = displayedMapAttacks.shift();
-            map.removeLayer(oldestAttack.line);
-            map.removeLayer(oldestAttack.sourceMarker);
-        }
-    }
-
-    function formatTimeSince(timestamp) {
-        if (!timestamp) return "N/A";
-        const now = new Date();
-        const secondsAgo = Math.round((now - timestamp) / 1000);
-
-        if (secondsAgo < 1) return "just now";
-        if (secondsAgo < 60) return `${secondsAgo}s ago`;
-        if (secondsAgo < 3600) return `${Math.floor(secondsAgo / 60)}m ago`;
-        if (secondsAgo < 86400) return `${Math.floor(secondsAgo / 3600)}h ago`;
-        return `${Math.floor(secondsAgo / 86400)}d ago`; // Days
-    }
+    function getAttackColor(severity) { /* ... (as before) ... */ }
+    function addAttackToList(attackData) { /* ... (as before) ... */ }
+    function drawAttackOnMap(attackData) { /* ... (as before) ... */ }
+    function formatTimeSince(timestamp) { /* ... (as before) ... */ }
     
     function updateOverviewUI() {
+        // Update attack type stats in circles
         attackTypes.forEach(type => {
             const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
             const countElement = document.getElementById(`count-${typeId}`);
@@ -227,35 +126,20 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        if (overallTimeSinceLastAttackElement) {
-            if (overallLastAttackTimestamp) {
-                const now = new Date();
-                const secondsAgo = Math.round((now - overallLastAttackTimestamp) / 1000);
-                if (secondsAgo < 1) {
-                    overallTimeSinceLastAttackElement.innerText = "just now";
-                } else if (secondsAgo < 60) {
-                    overallTimeSinceLastAttackElement.innerText = `${secondsAgo} sec${secondsAgo === 1 ? '' : 's'} ago`;
-                } else {
-                    const minutesAgo = Math.floor(secondsAgo / 60);
-                    const remainingSeconds = secondsAgo % 60;
-                    overallTimeSinceLastAttackElement.innerText = `${minutesAgo} min${minutesAgo === 1 ? '' : 's'}, ${remainingSeconds} sec${remainingSeconds === 1 ? '' : 's'} ago`;
-                }
-            } else {
-                overallTimeSinceLastAttackElement.innerText = "No attacks yet.";
+        // NEW: Update source country counts
+        for (const countryName in sourceCountryStats) {
+            const countryId = countryName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+            const countElement = document.getElementById(`country-count-${countryId}`);
+            if (countElement) {
+                countElement.innerText = sourceCountryStats[countryName].count;
             }
         }
+
+        // Update overall "time since last attack" 
+        if (overallTimeSinceLastAttackElement) { /* ... (as before) ... */ }
     }
     
     const simulationInterval = 3000;
-    function startSimulation() {
-        console.log("Starting cyberattack simulation...");
-        setInterval(() => {
-            const newAttack = generateSimulatedAttack();
-            addAttackToList(newAttack);
-            drawAttackOnMap(newAttack);
-            updateOverviewUI();
-        }, simulationInterval);
-        setInterval(updateOverviewUI, 1000); // Refresh times every second
-    }
+    function startSimulation() { /* ... (as before) ... */ }
     startSimulation();
 });

@@ -168,7 +168,6 @@ body, html {
     padding-bottom: 120px; /* Adjust this based on overview-section's actual height */
     box-sizing: border-box;
 }
-/* ... (keep all existing styles) ... */
 
 /* Styles for the container of attack circles */
 #attack-type-counts {
@@ -228,3 +227,72 @@ body, html {
     color: #bdc3c7; /* Ensure this specific span is also styled if needed */
 }
 
+/* ... (Keep all existing styles from before) ... */
+
+/* Adjust .overview-content to accommodate three items */
+.overview-content {
+    display: flex;
+    justify-content: space-between; /* Distribute space, or use space-around */
+    align-items: flex-start; 
+    flex-wrap: wrap; 
+}
+
+#attack-type-counts { /* Circles container */
+    flex-basis: 45%; /* Adjust as needed */
+    /* display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; padding: 10px 0; flex-grow: 1; */ /* Styles from before are good */
+}
+
+/* NEW: Styles for the country attack stats list */
+#country-attack-stats {
+    flex-basis: 25%; /* Adjust as needed */
+    padding: 0 15px; /* Add some padding */
+    box-sizing: border-box;
+    max-height: 150px; /* Example: Set a max height for scrolling if list is long */
+    overflow-y: auto; /* Add scroll if content overflows */
+    border-left: 1px solid #34495e; /* Optional separator */
+    border-right: 1px solid #34495e; /* Optional separator */
+}
+
+#country-attack-stats h4 {
+    /* margin-top: 0; (already in #overview-section h4) */
+    /* margin-bottom: 8px; */
+    /* font-size: 1.1em; */
+    /* color: #bdc3c7; */
+    text-align: center; /* Center the "Attacks by Source:" heading */
+    padding-bottom: 5px;
+    border-bottom: 1px solid #34495e;
+}
+
+.country-stat-item {
+    display: flex;
+    justify-content: space-between; /* Puts name on left, count on right */
+    padding: 4px 0;
+    font-size: 0.9em;
+    border-bottom: 1px dashed #34495e; /* Light separator for items */
+}
+.country-stat-item:last-child {
+    border-bottom: none;
+}
+
+.country-name {
+    color: #ecf0f1; 
+}
+
+.country-count {
+    font-weight: bold;
+    color: #e67e22; /* Orange color for country counts */
+}
+
+#last-attack-info { /* Overall last attack info */
+    flex-basis: 25%; /* Adjust as needed */
+    text-align: right;
+    padding-left: 15px; /* Add some padding */
+    box-sizing: border-box;
+}
+
+/* Ensure the .app-container padding-bottom is still adequate.
+   The overview section might not get taller if the country list scrolls,
+   but if it wraps on very small screens, it could.
+   You might need to adjust this value in .app-container:
+   padding-bottom: 120px; or more if needed
+*/
