@@ -1,3 +1,3 @@
 # MYRKUR
 Cyberattack Visualizer based on Iceland
-Malware-Yield & Reikjavík Kill-chain Uptime Reporte
+Malware-Yield & Reykjavík Kill-chain Uptime Reporter
