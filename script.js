@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', function () {
     const map = L.map('map-container').setView([64.9631, -19.0208], 6);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // MODIFIED: Switched to CartoDB Dark Matter tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd', // CartoDB subdomains
+        maxZoom: 19 // CartoDB supports up to zoom level 19
     }).addTo(map);
 
-    console.log('Map initialized.');
+    console.log('Map initialized with dark tiles.');
 
     const attackTypes = [
         "DDoS", "Malware Infection", "Phishing Attempt", "Ransomware Attack",
