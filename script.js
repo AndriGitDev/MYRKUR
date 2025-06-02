@@ -1,23 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize the map and set its view to Iceland's coordinates
-    const map = L.map('map-container').setView([64.9631, -19.0208], 5); // Zoom level 5
+    const map = L.map('map-container').setView([64.9631, -19.0208], 5);
 
-    // Add a tile layer to the map (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
     console.log('Map initialized.');
 
-    // --- DATA SIMULATION LOGIC STARTS HERE ---
-
     const attackTypes = [
-        "DDoS", "Malware Infection", "Phishing Attempt", "Ransomware Attack", 
+        "DDoS", "Malware Infection", "Phishing Attempt", "Ransomware Attack",
         "SQL Injection", "Man-in-the-Middle", "Zero-Day Exploit"
     ];
 
-    // Approximate coordinates for potential source countries
-    // Lat/Lng are approximate and mostly for visual variety on a map later
     const sourceCountries = [
         { name: "Russia", latitude: 61.5240, longitude: 105.3188, weight: 3 },
         { name: "China", latitude: 35.8617, longitude: 104.1954, weight: 3 },
@@ -28,25 +22,25 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: "North Korea", latitude: 40.3399, longitude: 127.5101, weight: 2 },
         { name: "United Kingdom", latitude: 55.3781, longitude: -3.4360, weight: 1 },
         { name: "Netherlands", latitude: 52.1326, longitude: 5.2913, weight: 1 },
-        { name: "Unknown Attacker Group", latitude: 20.0, longitude: 0.0, weight: 1 } // Generic point
+        { name: "Unknown Attacker Group", latitude: 20.0, longitude: 0.0, weight: 1 }
     ];
 
     const targetLocation = {
         name: "Iceland",
-        latitude: 64.9631, // For map centering
+        latitude: 64.9631,
         longitude: -19.0208
     };
 
     const attackListElement = document.getElementById('attack-list');
-    const placeholderListItem = document.querySelector('.attack-item-placeholder');
-    const MAX_LIST_ITEMS = 20; // Max number of attacks to show in the list
+    const placeholderListItem = document.querySelector('.attack-item-placeholder'); // Will be null after first attack
+    const MAX_LIST_ITEMS = 20;
+    const MAX_MAP_LINES = 15; // Max number of attack lines to show on the map
+    let displayedMapAttacks = []; // To keep track of lines on the map
 
-    // Helper function to get a random element from an array
     function getRandomElement(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    // Helper function to get a random weighted element from an array
     function getRandomWeightedElement(weightedArr) {
         let totalWeight = weightedArr.reduce((sum, item) => sum + item.weight, 0);
         let randomNum = Math.random() * totalWeight;
@@ -56,23 +50,20 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             randomNum -= item.weight;
         }
-        return weightedArr[weightedArr.length - 1]; // Fallback
+        return weightedArr[weightedArr.length - 1];
     }
 
-    // Function to generate a single simulated attack
     function generateSimulatedAttack() {
         const source = getRandomWeightedElement(sourceCountries);
         const type = getRandomElement(attackTypes);
         const timestamp = new Date();
         const severityLevels = ["Low", "Medium", "High", "Critical"];
         const severity = getRandomElement(severityLevels);
-
-        // Simulate a plausible but fake source IP (simplified)
         const fakeIpSegment = () => Math.floor(Math.random() * 255) + 1;
         const fakeSourceIp = `${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}`;
 
         return {
-            id: `attack-${timestamp.getTime()}-${Math.random().toString(16).slice(2)}`, // Unique ID
+            id: `attack-${timestamp.getTime()}-${Math.random().toString(16).slice(2)}`,
             sourceCountry: source.name,
             sourceCoords: { lat: source.latitude, lng: source.longitude },
             targetCountry: targetLocation.name,
@@ -85,43 +76,112 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // Function to add an attack to the HTML list
+    function getAttackColor(severity) {
+        switch(severity) {
+            case "Low": return '#4caf50'; // Green
+            case "Medium": return '#ffc107'; // Amber
+            case "High": return '#ff9800';   // Orange
+            case "Critical": return '#f44336'; // Red
+            default: return '#9e9e9e'; // Grey
+        }
+    }
+
     function addAttackToList(attackData) {
-        if (placeholderListItem) {
-            placeholderListItem.remove(); // Remove "Waiting for attack data..."
+        const currentPlaceholder = document.querySelector('.attack-item-placeholder');
+        if (currentPlaceholder) {
+            currentPlaceholder.remove();
         }
 
         const listItem = document.createElement('li');
         listItem.classList.add('attack-item');
-        listItem.setAttribute('data-attack-id', attackData.id); // Store ID for potential future use
-
-        // Simple coloring based on severity
-        let severityColor = '#333'; // Default
-        switch(attackData.severity) {
-            case "Medium": severityColor = '#ffa000'; break; // Orange
-            case "High": severityColor = '#d32f2f'; break;   // Red
-            case "Critical": severityColor = '#b71c1c'; break; // Darker Red
-        }
+        listItem.setAttribute('data-attack-id', attackData.id);
+        
+        const severityColor = getAttackColor(attackData.severity);
 
         listItem.innerHTML = `
-            <strong>${attackData.attackType}</strong> (${attackData.severity})<br>
+            <strong>${attackData.attackType}</strong> <span style="color:${severityColor}; font-weight:bold;">(${attackData.severity})</span><br>
             <small>From: ${attackData.sourceCountry} (IP: ${attackData.sourceIp})</small><br>
             <small>Time: ${attackData.timestamp.toLocaleTimeString()}</small>
         `;
         listItem.style.borderLeft = `4px solid ${severityColor}`;
 
-
-        // Add new item to the top of the list
         attackListElement.insertBefore(listItem, attackListElement.firstChild);
 
-        // Keep the list size manageable
         if (attackListElement.children.length > MAX_LIST_ITEMS) {
             attackListElement.removeChild(attackListElement.lastChild);
         }
     }
 
+    // --- MAP VISUALIZATION LOGIC ---
+    function drawAttackOnMap(attackData) {
+        const sourceLatLng = L.latLng(attackData.sourceCoords.lat, attackData.sourceCoords.lng);
+        const targetLatLng = L.latLng(attackData.targetCoords.lat, attackData.targetCoords.lng);
+
+        const lineColor = getAttackColor(attackData.severity);
+
+        // Create a curved line (or straight if preferred)
+        // For a straight line:
+        const polyline = L.polyline([sourceLatLng, targetLatLng], {
+            color: lineColor,
+            weight: 2, // Thinner line
+            opacity: 0.7
+        }).addTo(map);
+        
+        // Add a small circle marker at the source
+        const sourceMarker = L.circleMarker(sourceLatLng, {
+            radius: 4,
+            fillColor: lineColor,
+            color: "#fff", // White border for the circle
+            weight: 1,
+            opacity: 0.8,
+            fillOpacity: 0.7
+        }).addTo(map);
+        
+        // Add a pulse effect at the target
+        const targetPulse = L.circleMarker(targetLatLng, {
+            radius: 8,
+            fillColor: lineColor,
+            color: lineColor,
+            weight: 2,
+            opacity: 0.8,
+            fillOpacity: 0.5
+        }).addTo(map);
+
+        // Animate pulse (simple scale up and fade out)
+        let pulseRadius = 8;
+        let pulseOpacity = 0.5;
+        const pulseInterval = setInterval(() => {
+            pulseRadius += 4;
+            pulseOpacity -= 0.05;
+            if (pulseOpacity <= 0) {
+                map.removeLayer(targetPulse);
+                clearInterval(pulseInterval);
+            } else {
+                targetPulse.setRadius(pulseRadius);
+                targetPulse.setStyle({fillOpacity: pulseOpacity, opacity: pulseOpacity});
+            }
+        }, 50); // Adjust timing for pulse speed
+
+
+        // Store the line and markers to remove them later
+        const attackVisualization = {
+            id: attackData.id,
+            line: polyline,
+            sourceMarker: sourceMarker
+            // targetPulse is self-removing
+        };
+        displayedMapAttacks.push(attackVisualization);
+
+        // Remove oldest attack visualization if exceeding max
+        if (displayedMapAttacks.length > MAX_MAP_LINES) {
+            const oldestAttack = displayedMapAttacks.shift(); // Get the oldest and remove from array
+            map.removeLayer(oldestAttack.line);
+            map.removeLayer(oldestAttack.sourceMarker);
+        }
+    }
+    
     // --- Simulation Loop ---
-    const simulationInterval = 3000; // Generate an attack every 3 seconds (3000ms)
+    const simulationInterval = 3000;
 
     function startSimulation() {
         console.log("Starting cyberattack simulation...");
@@ -129,10 +189,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const newAttack = generateSimulatedAttack();
             console.log("New Attack Generated:", newAttack);
             addAttackToList(newAttack);
-            // In the next step, we'll also pass newAttack to a function to draw it on the map.
+            drawAttackOnMap(newAttack); // Add this line
         }, simulationInterval);
     }
 
-    startSimulation(); // Start the simulation
-
+    startSimulation();
 });
