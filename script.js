@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ];
 
     // --- START: Overview Section Variables ---
-    const attackTypeCounts = {}; // To store counts like {"DDoS": 10, ...}
+    const attackTypeCounts = {};
     let lastAttackTimestamp = null;
     const attackCountsContainer = document.getElementById('attack-type-counts');
     const timeSinceLastAttackElement = document.getElementById('time-since-last-attack');
@@ -23,8 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
         attackTypeCounts[type] = 0;
         const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, ''); // Sanitize ID
         const p = document.createElement('p');
-        p.innerHTML = `<span class="math-inline">\{type\}\: <span id\="count\-</span>{typeId}">${attackTypeCounts[type]}</span>`;
-        if (attackCountsContainer) { // Check if container exists
+        // CORRECTED LINE: Ensure this is a clean template literal
+        p.innerHTML = `${type}: <span id="count-${typeId}">${attackTypeCounts[type]}</span>`;
+        if (attackCountsContainer) {
             attackCountsContainer.appendChild(p);
         }
     });
@@ -33,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const sourceCountries = [
         { name: "Russia", latitude: 61.5240, longitude: 105.3188, weight: 3 },
         { name: "China", latitude: 35.8617, longitude: 104.1954, weight: 3 },
-        // ... (rest of sourceCountries array as before)
         { name: "USA", latitude: 38.9637, longitude: -95.7129, weight: 2 },
         { name: "Brazil", latitude: -14.2350, longitude: -51.9253, weight: 1 },
         { name: "Germany", latitude: 51.1657, longitude: 10.4515, weight: 2 },
@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const MAX_MAP_LINES = 15;
     let displayedMapAttacks = [];
 
-    function getRandomElement(arr) { /* ... (no change) ... */ return arr[Math.floor(Math.random() * arr.length)]; }
-    function getRandomWeightedElement(weightedArr) { /* ... (no change) ... */ 
+    function getRandomElement(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomWeightedElement(weightedArr) {
         let totalWeight = weightedArr.reduce((sum, item) => sum + (item.weight || 1), 0);
         let randomNum = Math.random() * totalWeight;
         for (let item of weightedArr) {
@@ -72,19 +72,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const source = getRandomWeightedElement(sourceCountries);
         const chosenTargetCity = getRandomWeightedElement(targetCities);
         const type = getRandomElement(attackTypes);
-        const timestamp = new Date(); // Capture precise timestamp
+        const timestamp = new Date();
         const severityLevels = ["Low", "Medium", "High", "Critical"];
         const severity = getRandomElement(severityLevels);
+        
+        // CORRECTED FAKE IP GENERATION
         const fakeIpSegment = () => Math.floor(Math.random() * 255) + 1;
-        const fakeSourceIp = `<span class="math-inline">\{fakeIpSegment\(\)\}\.</span>{fakeIpSegment()}.<span class="math-inline">\{fakeIpSegment\(\)\}\.</span>{fakeIpSegment()}`;
+        const fakeSourceIp = `${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}.${fakeIpSegment()}`;
 
-        // Update attackTypeCounts and lastAttackTimestamp HERE
-        // as this is when an attack is officially "generated"
         attackTypeCounts[type]++;
-        lastAttackTimestamp = timestamp; // Update with the new attack's timestamp
+        lastAttackTimestamp = timestamp;
 
+        // CORRECTED ID GENERATION
         return {
-            id: `attack-<span class="math-inline">\{timestamp\.getTime\(\)\}\-</span>{Math.random().toString(16).slice(2)}`,
+            id: `attack-${timestamp.getTime()}-${Math.random().toString(16).slice(2)}`,
             sourceCountry: source.name,
             sourceCoords: { lat: source.latitude, lng: source.longitude },
             targetCity: chosenTargetCity.name,
@@ -93,12 +94,12 @@ document.addEventListener('DOMContentLoaded', function () {
             attackType: type,
             timestamp: timestamp,
             severity: severity,
-            sourceIp: fakeSourceIp,
+            sourceIp: fakeSourceIp, // This will now be the clean IP string
             description: `${type} from ${source.name} targeting ${chosenTargetCity.name}, Iceland. Severity: ${severity}. (IP: ${fakeSourceIp})`
         };
     }
 
-    function getAttackColor(severity) { /* ... (no change) ... */ 
+    function getAttackColor(severity) {
         switch(severity) {
             case "Low": return '#4caf50';
             case "Medium": return '#ffc107';
@@ -107,7 +108,8 @@ document.addEventListener('DOMContentLoaded', function () {
             default: return '#9e9e9e';
         }
     }
-    function addAttackToList(attackData) { /* ... (no change) ... */ 
+
+    function addAttackToList(attackData) {
         const currentPlaceholder = document.querySelector('.attack-item-placeholder');
         if (currentPlaceholder) {
             currentPlaceholder.remove();
@@ -116,8 +118,10 @@ document.addEventListener('DOMContentLoaded', function () {
         listItem.classList.add('attack-item');
         listItem.setAttribute('data-attack-id', attackData.id);
         const severityColor = getAttackColor(attackData.severity);
+
+        // CORRECTED listItem.innerHTML
         listItem.innerHTML = `
-            <strong><span class="math-inline">\{attackData\.attackType\}</strong\> <span style\="color\:</span>{severityColor}; font-weight:bold;">(${attackData.severity})</span><br>
+            <strong>${attackData.attackType}</strong> <span style="color:${severityColor}; font-weight:bold;">(${attackData.severity})</span><br>
             <small>From: ${attackData.sourceCountry} (IP: ${attackData.sourceIp})</small><br>
             <small>Target: ${attackData.targetCity}, ${attackData.targetCountry}</small><br> 
             <small>Time: ${attackData.timestamp.toLocaleTimeString()}</small>
@@ -128,7 +132,8 @@ document.addEventListener('DOMContentLoaded', function () {
             attackListElement.removeChild(attackListElement.lastChild);
         }
     }
-    function drawAttackOnMap(attackData) { /* ... (no change) ... */ 
+
+    function drawAttackOnMap(attackData) {
         const sourceLatLng = L.latLng(attackData.sourceCoords.lat, attackData.sourceCoords.lng);
         const targetLatLng = L.latLng(attackData.targetCoords.lat, attackData.targetCoords.lng);
         const lineColor = getAttackColor(attackData.severity);
@@ -158,30 +163,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- NEW: Function to Update Overview UI ---
     function updateOverviewUI() {
-        // Update attack type counts
         attackTypes.forEach(type => {
-            const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, ''); // Sanitize ID
+            const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
             const countElement = document.getElementById(`count-${typeId}`);
             if (countElement) {
                 countElement.innerText = attackTypeCounts[type];
             }
         });
 
-        // Update time since last attack
         if (lastAttackTimestamp && timeSinceLastAttackElement) {
             const now = new Date();
             const secondsAgo = Math.round((now - lastAttackTimestamp) / 1000);
             
+            // CORRECTED "Time Since Last Attack" string generation
             if (secondsAgo < 1) {
                  timeSinceLastAttackElement.innerText = "just now";
             } else if (secondsAgo < 60) {
-                timeSinceLastAttackElement.innerText = `<span class="math-inline">\{secondsAgo\} second</span>{secondsAgo === 1 ? '' : 's'} ago`;
+                timeSinceLastAttackElement.innerText = `${secondsAgo} second${secondsAgo === 1 ? '' : 's'} ago`;
             } else {
                 const minutesAgo = Math.floor(secondsAgo / 60);
                 const remainingSeconds = secondsAgo % 60;
-                timeSinceLastAttackElement.innerText = `<span class="math-inline">\{minutesAgo\} min</span>{minutesAgo === 1 ? '' : 's'}, <span class="math-inline">\{remainingSeconds\} sec</span>{remainingSeconds === 1 ? '' : 's'} ago`;
+                timeSinceLastAttackElement.innerText = `${minutesAgo} min${minutesAgo === 1 ? '' : 's'}, ${remainingSeconds} sec${remainingSeconds === 1 ? '' : 's'} ago`;
             }
         } else if (timeSinceLastAttackElement) {
             timeSinceLastAttackElement.innerText = "No attacks yet.";
@@ -193,14 +196,13 @@ document.addEventListener('DOMContentLoaded', function () {
    function startSimulation() {
         console.log("Starting cyberattack simulation...");
         setInterval(() => {
-            const newAttack = generateSimulatedAttack(); // This now updates counts and lastAttackTimestamp
+            const newAttack = generateSimulatedAttack();
             addAttackToList(newAttack);
             drawAttackOnMap(newAttack);
-            updateOverviewUI(); // Update UI immediately after an attack
+            updateOverviewUI();
         }, simulationInterval);
 
-        // Separate interval to keep the "time since last attack" fresh
-        setInterval(updateOverviewUI, 1000); // Update every second
+        setInterval(updateOverviewUI, 1000);
     }
 
     startSimulation();
