@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const map = L.map('map-container').setView([64.9631, -19.0208], 5);
+    // Centering map on Iceland generally - good for showing the whole country
+    const map = L.map('map-container').setView([64.9631, -19.0208], 6); // Adjusted zoom slightly
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -22,39 +23,43 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: "North Korea", latitude: 40.3399, longitude: 127.5101, weight: 2 },
         { name: "United Kingdom", latitude: 55.3781, longitude: -3.4360, weight: 1 },
         { name: "Netherlands", latitude: 52.1326, longitude: 5.2913, weight: 1 },
-        { name: "Unknown Attacker Group", latitude: 20.0, longitude: 0.0, weight: 1 }
+        { name: "Unknown Attacker Group", latitude: 20.0, longitude: 0.0, weight: 1 } // Generic point for diverse origins
     ];
 
-    const targetLocation = {
-        name: "Iceland",
-        latitude: 64.9631,
-        longitude: -19.0208
-    };
+    // NEW: Define specific target cities in Iceland
+    const targetCities = [
+        { name: "Reykjavik", latitude: 64.1466, longitude: -21.9426, weight: 8 }, // 80% chance
+        { name: "Akureyri", latitude: 65.6835, longitude: -18.1000, weight: 2 }  // 20% chance (Approx. coords for Akureyri)
+    ];
+    // Note: The old `targetLocation` for general Iceland is no longer strictly needed for attack generation
+    // but can be kept if we want a reference to the geographic center of Iceland for other purposes.
+    // The map's initial setView still uses general Iceland coordinates to frame the whole country.
 
     const attackListElement = document.getElementById('attack-list');
-    const placeholderListItem = document.querySelector('.attack-item-placeholder'); // Will be null after first attack
     const MAX_LIST_ITEMS = 20;
-    const MAX_MAP_LINES = 15; // Max number of attack lines to show on the map
-    let displayedMapAttacks = []; // To keep track of lines on the map
+    const MAX_MAP_LINES = 15;
+    let displayedMapAttacks = [];
 
     function getRandomElement(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
     }
 
     function getRandomWeightedElement(weightedArr) {
-        let totalWeight = weightedArr.reduce((sum, item) => sum + item.weight, 0);
+        let totalWeight = weightedArr.reduce((sum, item) => sum + (item.weight || 1), 0); // Default weight 1 if not specified
         let randomNum = Math.random() * totalWeight;
         for (let item of weightedArr) {
-            if (randomNum < item.weight) {
+            const weight = item.weight || 1;
+            if (randomNum < weight) {
                 return item;
             }
-            randomNum -= item.weight;
+            randomNum -= weight;
         }
-        return weightedArr[weightedArr.length - 1];
+        return weightedArr[weightedArr.length - 1]; // Fallback
     }
 
     function generateSimulatedAttack() {
         const source = getRandomWeightedElement(sourceCountries);
+        const chosenTargetCity = getRandomWeightedElement(targetCities); // Select a target city
         const type = getRandomElement(attackTypes);
         const timestamp = new Date();
         const severityLevels = ["Low", "Medium", "High", "Critical"];
@@ -66,23 +71,25 @@ document.addEventListener('DOMContentLoaded', function () {
             id: `attack-${timestamp.getTime()}-${Math.random().toString(16).slice(2)}`,
             sourceCountry: source.name,
             sourceCoords: { lat: source.latitude, lng: source.longitude },
-            targetCountry: targetLocation.name,
-            targetCoords: { lat: targetLocation.latitude, lng: targetLocation.longitude },
+            targetCity: chosenTargetCity.name, // Store the chosen city's name
+            targetCountry: "Iceland", // General country context
+            targetCoords: { lat: chosenTargetCity.latitude, lng: chosenTargetCity.longitude }, // Use specific city coordinates
             attackType: type,
             timestamp: timestamp,
             severity: severity,
             sourceIp: fakeSourceIp,
-            description: `${type} from ${source.name} targeting ${targetLocation.name}. Severity: ${severity}. (IP: ${fakeSourceIp})`
+            // Updated description to include the specific city
+            description: `${type} from ${source.name} targeting ${chosenTargetCity.name}, Iceland. Severity: ${severity}. (IP: ${fakeSourceIp})`
         };
     }
 
     function getAttackColor(severity) {
         switch(severity) {
-            case "Low": return '#4caf50'; // Green
-            case "Medium": return '#ffc107'; // Amber
-            case "High": return '#ff9800';   // Orange
-            case "Critical": return '#f44336'; // Red
-            default: return '#9e9e9e'; // Grey
+            case "Low": return '#4caf50';
+            case "Medium": return '#ffc107';
+            case "High": return '#ff9800';
+            case "Critical": return '#f44336';
+            default: return '#9e9e9e';
         }
     }
 
@@ -98,9 +105,11 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const severityColor = getAttackColor(attackData.severity);
 
+        // Updated listItem.innerHTML to show target city
         listItem.innerHTML = `
             <strong>${attackData.attackType}</strong> <span style="color:${severityColor}; font-weight:bold;">(${attackData.severity})</span><br>
             <small>From: ${attackData.sourceCountry} (IP: ${attackData.sourceIp})</small><br>
+            <small>Target: ${attackData.targetCity}, ${attackData.targetCountry}</small><br> 
             <small>Time: ${attackData.timestamp.toLocaleTimeString()}</small>
         `;
         listItem.style.borderLeft = `4px solid ${severityColor}`;
@@ -112,33 +121,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- MAP VISUALIZATION LOGIC ---
     function drawAttackOnMap(attackData) {
         const sourceLatLng = L.latLng(attackData.sourceCoords.lat, attackData.sourceCoords.lng);
+        // Target coordinates are now specific to the chosen city (Reykjavik or Akureyri)
         const targetLatLng = L.latLng(attackData.targetCoords.lat, attackData.targetCoords.lng);
 
         const lineColor = getAttackColor(attackData.severity);
 
-        // Create a curved line (or straight if preferred)
-        // For a straight line:
         const polyline = L.polyline([sourceLatLng, targetLatLng], {
             color: lineColor,
-            weight: 2, // Thinner line
+            weight: 2,
             opacity: 0.7
         }).addTo(map);
         
-        // Add a small circle marker at the source
         const sourceMarker = L.circleMarker(sourceLatLng, {
             radius: 4,
             fillColor: lineColor,
-            color: "#fff", // White border for the circle
+            color: "#fff",
             weight: 1,
             opacity: 0.8,
             fillOpacity: 0.7
         }).addTo(map);
         
-        // Add a pulse effect at the target
-        const targetPulse = L.circleMarker(targetLatLng, {
+        const targetPulse = L.circleMarker(targetLatLng, { // Pulse will appear over the specific city
             radius: 8,
             fillColor: lineColor,
             color: lineColor,
@@ -147,7 +152,6 @@ document.addEventListener('DOMContentLoaded', function () {
             fillOpacity: 0.5
         }).addTo(map);
 
-        // Animate pulse (simple scale up and fade out)
         let pulseRadius = 8;
         let pulseOpacity = 0.5;
         const pulseInterval = setInterval(() => {
@@ -160,36 +164,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 targetPulse.setRadius(pulseRadius);
                 targetPulse.setStyle({fillOpacity: pulseOpacity, opacity: pulseOpacity});
             }
-        }, 50); // Adjust timing for pulse speed
+        }, 50);
 
-
-        // Store the line and markers to remove them later
         const attackVisualization = {
             id: attackData.id,
             line: polyline,
             sourceMarker: sourceMarker
-            // targetPulse is self-removing
         };
         displayedMapAttacks.push(attackVisualization);
 
-        // Remove oldest attack visualization if exceeding max
         if (displayedMapAttacks.length > MAX_MAP_LINES) {
-            const oldestAttack = displayedMapAttacks.shift(); // Get the oldest and remove from array
+            const oldestAttack = displayedMapAttacks.shift();
             map.removeLayer(oldestAttack.line);
             map.removeLayer(oldestAttack.sourceMarker);
         }
     }
     
-    // --- Simulation Loop ---
     const simulationInterval = 3000;
 
     function startSimulation() {
         console.log("Starting cyberattack simulation...");
         setInterval(() => {
             const newAttack = generateSimulatedAttack();
-            console.log("New Attack Generated:", newAttack);
+            // console.log("New Attack Generated:", newAttack); // Keep for debugging if needed
             addAttackToList(newAttack);
-            drawAttackOnMap(newAttack); // Add this line
+            drawAttackOnMap(newAttack);
         }, simulationInterval);
     }
 
