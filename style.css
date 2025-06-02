@@ -5,43 +5,102 @@ body, html {
     font-family: Arial, sans-serif;
     height: 100vh;
     width: 100vw;
-    overflow: hidden;
-    background-color: #f0f0f0;
-    color: #333;
+    overflow: hidden; 
+    background-color: #1e2226; 
+    color: #ccc; 
 }
 
+/* Header Styles */
+#app-header {
+    background-color: #1a1d20; 
+    color: #ecf0f1;
+    padding: 0 25px; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; 
+    z-index: 1002; 
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%; 
+}
+
+.project-info {
+    display: flex;
+    align-items: baseline; 
+}
+
+.project-title {
+    font-size: 1.8em;
+    margin: 0;
+    color: #3498db; 
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.project-author {
+    font-size: 0.8em;
+    margin: 0 0 0 15px; 
+    color: #7f8c8d; 
+}
+
+.header-links a.header-button {
+    color: #ecf0f1;
+    background-color: #3498db;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-left: 10px;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.header-links a.header-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* App Container to account for fixed header and footer */
 .app-container {
     display: flex;
-    height: 100%;
+    height: calc(100vh - 60px - 160px); /* Header=60px, Overview=160px */
     width: 100%;
-    /* Ensure padding-bottom is enough for the overview section */
-    padding-bottom: 160px; /* Adjust if overview section height changes */
+    margin-top: 60px; 
     box-sizing: border-box;
+    overflow: hidden; 
 }
 
 #map-container {
     flex-grow: 1;
-    height: 100%;
-    border-right: 2px solid #ccc;
-    background-color: #e0e0e0;
+    height: 100%; 
+    border-right: 2px solid #444; 
+    background-color: #2c3e50; 
 }
 
 #attack-list-container {
     width: 350px;
-    height: 100%;
+    height: 100%; 
     overflow-y: auto;
-    background-color: #ffffff;
+    background-color: #22272b; 
+    color: #bdc3c7; 
     padding: 15px;
     box-sizing: border-box;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
 }
 
 #attack-list-container h2 {
     margin-top: 0;
     padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #34495e; 
     font-size: 1.4em;
-    color: #1a237e;
+    color: #3498db; 
 }
 
 #attack-list {
@@ -53,187 +112,150 @@ body, html {
 .attack-item-placeholder {
     padding: 8px 0;
     font-style: italic;
-    color: #777;
+    color: #7f8c8d; 
 }
 
 .attack-item {
     padding: 10px 12px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #34495e; 
     font-size: 0.9em;
     line-height: 1.4;
-    background-color: #fff;
+    background-color: transparent; 
     margin-bottom: 5px;
     border-radius: 3px;
     transition: background-color 0.3s ease;
 }
-
 .attack-item:hover {
-    background-color: #f9f9f9;
+    background-color: #2c3e50; 
 }
-
 .attack-item strong {
     font-size: 1.05em;
-    color: #2c3e50;
+    color: #ecf0f1; 
 }
-
 .attack-item small {
-    color: #555;
+    color: #95a5a6; 
     display: block;
     margin-top: 3px;
 }
-
 .attack-item:last-child {
     border-bottom: none;
 }
 
-/* Overview Section General Styles */
+/* Overview Section (fixed at bottom) */
 #overview-section {
-    background-color: #2c3e50;
+    background-color: #1a1d20; 
     color: #ecf0f1;
-    padding: 10px 20px; /* Adjusted padding */
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    padding: 10px 20px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
     width: 100%;
     box-sizing: border-box;
     position: fixed;
     bottom: 0;
     left: 0;
     z-index: 1001;
+    height: 160px; 
 }
 
-#overview-section h3 { /* "Attack Statistics" heading */
+#overview-section h3 { 
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 8px; 
     text-align: center;
-    font-size: 1.3em; /* Slightly reduced */
+    font-size: 1.2em; 
     color: #ffffff;
     border-bottom: 1px solid #34495e;
-    padding-bottom: 8px; /* Slightly reduced */
+    padding-bottom: 6px; 
 }
 
-/* Container for the three parts of the overview */
 .overview-content {
     display: flex;
-    justify-content: space-between; /* Distributes space between children */
-    align-items: flex-start;
-    flex-wrap: nowrap; /* Prevent wrapping of main sections for now */
+    justify-content: space-between;
+    align-items: flex-start; 
+    flex-wrap: nowrap; 
+    height: calc(100% - 30px); /* Adjust based on h3 height (approx 22px + 8px margin-bottom) */
 }
 
 /* Attack Type Circles Container */
 #attack-type-counts {
-    flex-basis: 50%; /* Circles take up a good portion */
+    flex-basis: 50%; 
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: stretch;
-    padding: 5px 0; /* Reduced padding */
+    align-items: center; 
+    padding: 0px; 
+    overflow-y: auto; 
+    max-height: 100%; 
 }
-
 .attack-circle {
-    width: 120px; /* Slightly reduced size */
-    height: 120px; /* Slightly reduced size */
+    width: 110px; 
+    height: 110px;
+    margin: 4px; 
+    padding: 6px; 
     border-radius: 50%;
-    background-color: #34495e;
-    border: 2px solid #4a627a;
+    background-color: #2c3e50; 
+    border: 1px solid #4a627a; 
     color: #ecf0f1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin: 5px; /* Reduced margin */
-    padding: 8px; /* Reduced padding */
     box-sizing: border-box;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     transition: transform 0.2s ease-in-out;
 }
-.attack-circle:hover {
-    transform: scale(1.05);
-}
-.attack-circle h5.circle-attack-name {
-    font-size: 0.85em;
-    margin: 0 0 4px 0;
-    color: #ffffff;
-    font-weight: bold;
-}
-.attack-circle p.circle-attack-count {
-    font-size: 1.4em;
-    margin: 0 0 4px 0;
-    color: #1abc9c;
-    font-weight: bold;
-}
-.attack-circle p.circle-last-attack-time {
-    font-size: 0.7em;
-    margin: 0;
-    color: #bdc3c7;
-}
-.attack-circle p.circle-last-attack-time span {
-    font-weight: normal;
-    color: #bdc3c7;
-}
+.attack-circle:hover { transform: scale(1.05); }
+.attack-circle h5.circle-attack-name { font-size: 0.8em; margin: 0 0 3px 0; color: #ffffff; font-weight: bold; }
+.attack-circle p.circle-attack-count { font-size: 1.3em; margin: 0 0 3px 0; color: #1abc9c; font-weight: bold; }
+.attack-circle p.circle-last-attack-time { font-size: 0.65em; margin: 0; color: #bdc3c7; }
+.attack-circle p.circle-last-attack-time span { font-weight: normal; color: #bdc3c7; }
 
 /* Country Attack Stats List (Leaderboard) */
 #country-attack-stats {
-    flex-basis: 28%; /* Adjusted width */
-    padding: 0 10px; /* Reduced padding */
+    flex-basis: 26%; 
+    padding: 0 8px;
     box-sizing: border-box;
-    /* CSS Columns for two-column layout */
     column-count: 2;
-    column-gap: 15px; /* Space between columns */
-    /* The container might grow taller to balance columns.
-       Ensure .app-container padding-bottom is sufficient. */
+    column-gap: 10px;
+    max-height: 100%; 
+    overflow-y: auto; 
 }
-
-#country-attack-stats h4 { /* "Attacks by Source:" heading */
+#country-attack-stats h4 { 
     margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 1em; /* Slightly reduced */
+    margin-bottom: 6px;
+    font-size: 0.9em; 
     color: #bdc3c7;
     text-align: center;
-    padding-bottom: 5px;
+    padding-bottom: 4px;
     border-bottom: 1px solid #34495e;
-    column-span: all; /* Make heading span across columns */
-    -webkit-column-span: all; /* For Safari/Chrome */
+    column-span: all;
+    -webkit-column-span: all; 
 }
-
 .country-stat-item {
     display: flex;
     justify-content: space-between;
-    padding: 3px 0; /* Reduced padding */
-    font-size: 0.85em; /* Slightly reduced */
+    padding: 2px 0; 
+    font-size: 0.8em; 
     border-bottom: 1px dashed #34495e;
     break-inside: avoid-column;
     page-break-inside: avoid;
 }
-.country-stat-item:last-child {
-    border-bottom: none;
-}
-.country-name {
-    color: #ecf0f1;
-    margin-right: 5px; /* Add some space before the count */
-}
-.country-count {
-    font-weight: bold;
-    color: #e67e22; /* Orange color */
-}
+.country-stat-item:last-child { border-bottom: none; }
+.country-name { color: #ecf0f1; margin-right: 5px; }
+.country-count { font-weight: bold; color: #e67e22; }
 
 /* Overall Last Attack Info */
 #last-attack-info {
-    flex-basis: 20%; /* Adjusted width */
+    flex-basis: 22%; 
     text-align: right;
-    padding-left: 10px; /* Reduced padding */
+    padding-left: 8px;
     box-sizing: border-box;
+    max-height: 100%;
 }
 #last-attack-info h4 {
     margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 1em; /* Slightly reduced */
+    margin-bottom: 6px;
+    font-size: 0.9em; 
     color: #bdc3c7;
 }
-#last-attack-info p {
-    margin: 5px 0;
-    font-size: 0.9em; /* Slightly reduced */
-}
-#time-since-last-attack { /* The actual time string */
-    font-weight: bold;
-    color: #1abc9c;
-}
+#last-attack-info p { margin: 5px 0; font-size: 0.85em; }
+#time-since-last-attack { font-weight: bold; color: #1abc9c; }

@@ -30,16 +30,14 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: "Akureyri", latitude: 65.6835, longitude: -18.1000, weight: 2 }
     ];
 
-    // --- Overview Section Variables & Initialization ---
     const attackStats = {};
     let overallLastAttackTimestamp = null;
-    const sourceCountryStats = {}; // Will store counts like {"Russia": { count: 0 }, ...}
+    const sourceCountryStats = {}; 
 
     const attackCountsContainer = document.getElementById('attack-type-counts');
     const overallTimeSinceLastAttackElement = document.getElementById('time-since-last-attack');
     const countryAttackStatsContainer = document.getElementById('country-attack-stats');
 
-    // Initialize attack type stats and create HTML for circles
     attackTypes.forEach(type => {
         attackStats[type] = { count: 0, lastAttackTimestamp: null };
         const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
@@ -58,12 +56,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // MODIFIED: Initialize sourceCountryStats (data only).
-    // DOM elements for country list will be created by updateOverviewUI.
     sourceCountries.forEach(country => {
         sourceCountryStats[country.name] = { count: 0 };
     });
-    // --- END: Overview Section Initialization ---
 
     const attackListElement = document.getElementById('attack-list');
     const MAX_LIST_ITEMS = 20;
@@ -114,8 +109,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (sourceCountryStats[source.name]) {
             sourceCountryStats[source.name].count++;
         } else {
-            // This handles if a new country not in sourceCountries list is somehow generated as a source
-            // For current setup, this isn't expected as getRandomWeightedElement picks from sourceCountries
             sourceCountryStats[source.name] = { count: 1 };
             console.warn(`Source country ${source.name} was not pre-initialized for stats. Added dynamically.`);
         }
@@ -173,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function drawAttackOnMap(attackData) {
         if (!attackData) return;
-        // ... (rest of drawAttackOnMap function as provided in Step 8 / full corrected script) ...
+        
         const sourceLatLng = L.latLng(attackData.sourceCoords.lat, attackData.sourceCoords.lng);
         const targetLatLng = L.latLng(attackData.targetCoords.lat, attackData.targetCoords.lng);
         const lineColor = getAttackColor(attackData.severity);
@@ -219,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     function updateOverviewUI() {
-        // Update attack type stats in circles
         attackTypes.forEach(type => {
             const typeId = type.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
             const countElement = document.getElementById(`count-${typeId}`);
@@ -233,7 +225,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // MODIFIED: Update source country counts (leaderboard style)
         if (countryAttackStatsContainer) {
             const sortedCountries = [];
             for (const countryName in sourceCountryStats) {
@@ -260,7 +251,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Update overall "time since last attack" 
         if (overallTimeSinceLastAttackElement) {
             if (overallLastAttackTimestamp) {
                 const now = new Date();
