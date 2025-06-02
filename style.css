@@ -1,0 +1,66 @@
+/* Basic Reset & Body Styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+    overflow: hidden; /* Prevent scrollbars on the body itself */
+    background-color: #f0f0f0; /* Light grey background for the page */
+    color: #333;
+}
+
+.app-container {
+    display: flex; /* Arrange map and list side-by-side */
+    height: 100%;
+    width: 100%;
+}
+
+#map-container {
+    flex-grow: 1; /* Map takes up available space */
+    height: 100%;
+    border-right: 2px solid #ccc; /* Separator line */
+    background-color: #e0e0e0; /* Placeholder background for map area */
+}
+
+#attack-list-container {
+    width: 350px; /* Fixed width for the attack list */
+    height: 100%;
+    overflow-y: auto; /* Allow vertical scrolling if content exceeds height */
+    background-color: #ffffff; /* White background for the list area */
+    padding: 15px;
+    box-sizing: border-box; /* Padding and border included in width/height */
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1); /* Subtle shadow for separation */
+}
+
+#attack-list-container h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 1.4em;
+    color: #1a237e; /* Dark blue for heading */
+}
+
+#attack-list {
+    list-style-type: none; /* Remove default bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+/* Placeholder style for list items - we'll make this more detailed later */
+.attack-item-placeholder {
+    padding: 8px 0;
+    font-style: italic;
+    color: #777;
+}
+
+/* Future attack item styling will go here */
+.attack-item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9em;
+}
+
+.attack-item:last-child {
+    border-bottom: none;
+}
