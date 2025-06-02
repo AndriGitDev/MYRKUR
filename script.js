@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
     const map = L.map('map-container').setView([64.9631, -19.0208], 6);
 
-    // MODIFIED: Switched to CartoDB Dark Matter tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd', // CartoDB subdomains
-        maxZoom: 19 // CartoDB supports up to zoom level 19
+        subdomains: 'abcd',
+        maxZoom: 19
     }).addTo(map);
 
     console.log('Map initialized with dark tiles.');
@@ -35,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const attackStats = {};
     let overallLastAttackTimestamp = null;
-    const sourceCountryStats = {}; 
+    const sourceCountryStats = {};
 
     const attackCountsContainer = document.getElementById('attack-type-counts');
     const overallTimeSinceLastAttackElement = document.getElementById('time-since-last-attack');
@@ -287,4 +286,43 @@ document.addEventListener('DOMContentLoaded', function () {
         setInterval(updateOverviewUI, 1000);
     }
     startSimulation();
-});
+
+    // --- Disclaimer Modal Logic (from Step 13) ---
+    const disclaimerButton = document.getElementById('disclaimer-button');
+    const disclaimerModal = document.getElementById('disclaimer-modal');
+    
+    // Check if disclaimerModal itself exists before querying its child
+    if (disclaimerModal) {
+        const modalCloseButton = disclaimerModal.querySelector('.modal-close-button');
+
+        if (disclaimerButton && modalCloseButton) { // modalCloseButton is only defined if disclaimerModal exists
+            disclaimerButton.addEventListener('click', function(event) {
+                event.preventDefault(); 
+                disclaimerModal.classList.add('visible'); 
+            });
+
+            modalCloseButton.addEventListener('click', function() {
+                disclaimerModal.classList.remove('visible'); 
+            });
+
+            disclaimerModal.addEventListener('click', function(event) {
+                if (event.target === disclaimerModal) { 
+                    disclaimerModal.classList.remove('visible'); 
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && disclaimerModal.classList.contains('visible')) {
+                    disclaimerModal.classList.remove('visible'); 
+                }
+            });
+        } else {
+            if (!disclaimerButton) console.warn("Disclaimer button not found.");
+            if (!modalCloseButton) console.warn("Modal close button not found (likely because modal itself or child is missing).");
+        }
+    } else {
+        console.warn("Disclaimer modal (#disclaimer-modal) not found in HTML.");
+    }
+    // --- END: Disclaimer Modal Logic ---
+
+}); // End of DOMContentLoaded
