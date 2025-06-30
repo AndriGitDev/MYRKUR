@@ -91,7 +91,11 @@ body, html {
 
 /* Make Leaflet map tiles slightly less bright if possible */
 .leaflet-tile-pane {
-    filter: brightness(0.8) contrast(1.1); /* Adjust for desired "darker terminal" look */
+    /* filter: brightness(0.8) contrast(1.1); /* This was making the map too dark */
+    /* The Stamen Toner tiles are already black and white, so aggressive filtering isn't needed */
+    /* and can make them disappear on a black background. */
+    /* Consider a very slight brightness increase if anything, or leave unfiltered. */
+    /* For now, let's remove the filter to ensure visibility. */
 }
 
 
