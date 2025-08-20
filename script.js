@@ -1,29 +1,14 @@
 document.addEventListener('DOMContentLoaded', function () {
     const map = L.map('map-container').setView([64.9631, -19.0208], 6);
 
-    // Switched to a different dark tile layer that might fit the "hacker" theme better.
-    // This one is from Stamen Design, toner-background with toner-lines labels.
-    // It's black and white, which can be tinted with CSS filters if needed, or used as is for a stark look.
-    L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
-        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // Using CartoDB Dark Matter tiles - these are reliable and give a great dark/cyber look
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
-        minZoom: 0,
-        maxZoom: 20,
-        ext: 'png'
+        maxZoom: 20
     }).addTo(map);
 
-    // Optional: Add labels layer if the background is too plain
-    L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}{r}.{ext}', {
-        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        subdomains: 'abcd',
-        minZoom: 0,
-        maxZoom: 20,
-        ext: 'png',
-        pane: 'shadowPane' // Ensure lines are distinct, or adjust pane as needed
-    }).addTo(map);
-
-
-    console.log('Map initialized with Stamen Toner dark tiles.');
+    console.log('Map initialized with CartoDB Dark Matter tiles.');
 
     const attackTypes = [
         "DDoS", "Malware Infection", "Phishing Attempt", "Ransomware Attack",
