@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const MAX_LIST_ITEMS = 20;
     const MAX_MAP_LINES = 15;
     let displayedMapAttacks = [];
+    let feedPaused = false;  // Define feedPaused here, before it's used
 
     // Helper functions
     function getRandomElement(arr) { 
@@ -329,6 +330,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const currentPlaceholder = document.querySelector('.attack-item-placeholder');
         if (currentPlaceholder) currentPlaceholder.remove();
+
+        const listItem = document.createElement('li');
+        listItem.classList.add('attack-item');
+        if (attackData.isBlocked) listItem.classList.add('blocked-attack');
+        
+        listItem.setAttribute('data-attack-id', attackData.id);
+        const severityColor = getAttackColor(attackData.severity, attackData.isBlocked);
+        const statusIcon = attackData.isBlocked ? '🛡️' : '⚠️';
+        const statusText = attackData.isBlocked ? 'BLOCKED' : 'DETECTED';
+
+        listItem.innerHTML = `
+            <div class="attack-header">
+                <strong>${attackData.attackType}</strong>
+                <span class="attack-status ${attackData.isBlocked ? 'blocked' : 'active'}">${statusIcon} ${statusText}</span>
+            </div>
+            <div class="attack-details">
+                <span class="severity-badge" style="background-color:${severityColor}">${attackData.severity}</span>
+                <small class="attack-target">${attackData.targetSystem}</small>
+            </div>
+            <small class="attack-meta">
+                ${attackData.sourceCountry} → ${attackData.targetCity} | ${attackData.sourceIp}:${attackData.targetPort}
+            </small>
+            <small class="attack-time">${attackData.timestamp.toLocaleTimeString()}</small>
+        `;
+        listItem.style.borderLeft = `4px solid ${severityColor}`;
+
+        if (attackListElement) {
+            attackListElement.insertBefore(listItem, attackListElement.firstChild);
+            if (attackListElement.children.length > MAX_LIST_ITEMS) {
+                attackListElement.removeChild(attackListElement.lastChild);
+            }
+        }
+    }
 
         const listItem = document.createElement('li');
         listItem.classList.add('attack-item');
@@ -765,8 +799,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const zoomInBtn = document.getElementById('zoom-in');
     const zoomOutBtn = document.getElementById('zoom-out');
     const resetViewBtn = document.getElementById('reset-view');
-    
-    let feedPaused = false;
 
     // Stats modal toggle
     if (statsToggle && statsModal) {
