@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Dynamic attack frequency based on time
+    // Dynamic attack frequency based on time (increased by 30%)
     function getAttackFrequency() {
         const hour = new Date().getHours();
         let multiplier = 1;
@@ -513,8 +513,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
-        // Base interval 2-5 seconds, modified by time of day
-        const baseInterval = 2000 + Math.random() * 3000;
+        // Base interval 1.5-3.8 seconds (30% faster than before), modified by time of day
+        const baseInterval = 1500 + Math.random() * 2300;
         return baseInterval / multiplier;
     }
 
@@ -570,37 +570,164 @@ document.addEventListener('DOMContentLoaded', function () {
     // Disclaimer Modal Logic
     const disclaimerButton = document.getElementById('disclaimer-button');
     const disclaimerModal = document.getElementById('disclaimer-modal');
+    const acknowledgeBtn = document.getElementById('acknowledge-btn');
+    const dontShowAgain = document.getElementById('dont-show-again');
     
     if (disclaimerModal) {
         const modalCloseButton = disclaimerModal.querySelector('.modal-close-button');
 
-        // Show disclaimer on page load
-        setTimeout(() => {
-            disclaimerModal.classList.add('visible');
-        }, 500);
+        // Check if user has already acknowledged
+        const hasAcknowledged = localStorage.getItem('myrkur-disclaimer-acknowledged');
+        
+        // Show disclaimer on page load if not previously acknowledged
+        if (!hasAcknowledged) {
+            setTimeout(() => {
+                disclaimerModal.classList.add('visible');
+            }, 500);
+        }
 
-        if (disclaimerButton && modalCloseButton) {
+        // Close modal function
+        function closeDisclaimer() {
+            if (dontShowAgain && dontShowAgain.checked) {
+                localStorage.setItem('myrkur-disclaimer-acknowledged', 'true');
+            }
+            disclaimerModal.classList.remove('visible');
+        }
+
+        // I Understand button
+        if (acknowledgeBtn) {
+            acknowledgeBtn.addEventListener('click', closeDisclaimer);
+        }
+
+        // Disclaimer button in header
+        if (disclaimerButton) {
             disclaimerButton.addEventListener('click', function(event) {
                 event.preventDefault();
                 disclaimerModal.classList.add('visible');
             });
+        }
 
-            modalCloseButton.addEventListener('click', function() {
-                disclaimerModal.classList.remove('visible');
-            });
+        // X close button
+        if (modalCloseButton) {
+            modalCloseButton.addEventListener('click', closeDisclaimer);
+        }
 
-            disclaimerModal.addEventListener('click', function(event) {
-                if (event.target === disclaimerModal) {
-                    disclaimerModal.classList.remove('visible');
-                }
-            });
+        // Click outside to close
+        disclaimerModal.addEventListener('click', function(event) {
+            if (event.target === disclaimerModal) {
+                closeDisclaimer();
+            }
+        });
 
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape' && disclaimerModal.classList.contains('visible')) {
-                    disclaimerModal.classList.remove('visible');
-                }
+        // ESC key to close
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && disclaimerModal.classList.contains('visible')) {
+                closeDisclaimer();
+            }
+        });
+    }
+
+    // Additional UI Controls
+    const statsToggle = document.getElementById('stats-toggle');
+    const statsModal = document.getElementById('stats-modal');
+    const pauseFeedBtn = document.getElementById('pause-feed');
+    const clearFeedBtn = document.getElementById('clear-feed');
+    const severityFilter = document.getElementById('severity-filter');
+    const statusFilter = document.getElementById('status-filter');
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const resetViewBtn = document.getElementById('reset-view');
+    
+    let feedPaused = false;
+
+    // Stats modal toggle
+    if (statsToggle && statsModal) {
+        statsToggle.addEventListener('click', function() {
+            statsModal.classList.toggle('visible');
+        });
+        
+        const statsCloseBtn = statsModal.querySelector('.modal-close-button');
+        if (statsCloseBtn) {
+            statsCloseBtn.addEventListener('click', function() {
+                statsModal.classList.remove('visible');
             });
         }
     }
+
+    // Feed controls
+    if (pauseFeedBtn) {
+        pauseFeedBtn.addEventListener('click', function() {
+            feedPaused = !feedPaused;
+            pauseFeedBtn.textContent = feedPaused ? '▶' : '⏸';
+            pauseFeedBtn.setAttribute('aria-label', feedPaused ? 'Resume Feed' : 'Pause Feed');
+        });
+    }
+
+    if (clearFeedBtn) {
+        clearFeedBtn.addEventListener('click', function() {
+            const attackList = document.getElementById('attack-list');
+            if (attackList) {
+                attackList.innerHTML = '<li class="attack-item-placeholder">Feed cleared. Waiting for new data...</li>';
+            }
+        });
+    }
+
+    // Map controls
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', function() {
+            map.zoomIn();
+        });
+    }
+
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', function() {
+            map.zoomOut();
+        });
+    }
+
+    if (resetViewBtn) {
+        resetViewBtn.addEventListener('click', function() {
+            map.setView([64.9631, -19.0208], 6);
+        });
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+        // Don't trigger shortcuts when typing in inputs
+        if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+        
+        switch(event.key) {
+            case ' ':
+                event.preventDefault();
+                if (pauseFeedBtn) pauseFeedBtn.click();
+                break;
+            case 'c':
+            case 'C':
+                if (clearFeedBtn) clearFeedBtn.click();
+                break;
+            case 's':
+            case 'S':
+                if (statsToggle) statsToggle.click();
+                break;
+            case 'r':
+            case 'R':
+                if (resetViewBtn) resetViewBtn.click();
+                break;
+            case '+':
+            case '=':
+                if (zoomInBtn) zoomInBtn.click();
+                break;
+            case '-':
+            case '_':
+                if (zoomOutBtn) zoomOutBtn.click();
+                break;
+            case '?':
+                const helpTooltip = document.getElementById('keyboard-help');
+                if (helpTooltip) {
+                    helpTooltip.style.display = helpTooltip.style.display === 'block' ? 'none' : 'block';
+                }
+                break;
+        }
+    });
 
 }); // End of DOMContentLoaded
