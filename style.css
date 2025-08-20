@@ -1,124 +1,179 @@
+/* MYRKUR - Enhanced Cyber Attack Visualizer Styles */
+
 /* Basic Reset & Body Styling */
 body, html {
     margin: 0;
     padding: 0;
-    font-family: 'Courier New', Courier, monospace; /* Hacker-like monospace font */
+    font-family: 'Courier New', Courier, monospace;
     height: 100vh;
     width: 100vw;
-    overflow: hidden; 
-    background-color: #050505; /* Even darker background */
-    color: #00e600; /* Slightly less intense green for general text */
+    overflow: hidden;
+    background: linear-gradient(135deg, #050505 0%, #0a0a0a 50%, #050505 100%);
+    color: #00e600;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000000;
+    border: 1px solid #002200;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #003300;
+    border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #004400;
 }
 
 /* Header Styles */
 #app-header {
-    background-color: #000000; /* Black header */
-    color: #00ff00; /* Bright Green text for header elements */
-    padding: 0 20px; /* Slightly reduced padding */
+    background: linear-gradient(90deg, #000000 0%, #0a0f0a 50%, #000000 100%);
+    color: #00ff00;
+    padding: 0 20px;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 50px; /* Reduced header height */
-    z-index: 1002; 
+    height: 50px;
+    z-index: 1002;
     box-sizing: border-box;
-    box-shadow: 0 1px 3px rgba(0,255,0,0.25); /* Subtler Green shadow */
-    border-bottom: 1px solid #002200; /* Very Dark green border */
+    box-shadow: 0 2px 10px rgba(0,255,0,0.15);
+    border-bottom: 1px solid #002200;
 }
 
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 100%; 
+    height: 100%;
 }
 
 .project-info {
     display: flex;
-    align-items: baseline; 
+    align-items: baseline;
 }
 
 .project-title {
-    font-size: 1.6em; /* Slightly smaller title */
+    font-size: 1.6em;
     margin: 0;
     color: #00ff00;
-    font-weight: normal; /* Less bold */
-    letter-spacing: 2px; /* More spacing */
-    text-shadow: 0 0 7px #00ff00;
+    font-weight: normal;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00aa00;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
 }
 
 .project-author {
     font-size: 0.75em;
-    margin: 0 0 0 12px;
-    color: #00b300; /* Darker green */
+    margin: 0 0 0 15px;
+    color: #00b300;
+    opacity: 0.8;
 }
 
 .header-links a.header-button {
     color: #000000;
-    background-color: #00cc00; /* Slightly darker green for buttons */
-    padding: 6px 12px; /* Smaller buttons */
+    background: linear-gradient(135deg, #00cc00, #00aa00);
+    padding: 6px 14px;
     text-decoration: none;
-    border-radius: 0px;
+    border-radius: 2px;
     margin-left: 8px;
     font-size: 0.85em;
-    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid #007700; /* Darker green border */
-    box-shadow: inset 0 0 0 rgba(0,255,0,0); /* No initial inner glow */
+    transition: all 0.3s ease;
+    border: 1px solid #007700;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-links a.header-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.header-links a.header-button:hover::before {
+    left: 100%;
 }
 
 .header-links a.header-button:hover {
-    background-color: #007700;
-    color: #00e600;
-    box-shadow: 0 0 6px #00cc00, inset 0 0 4px rgba(0,255,0,0.5); /* Subtle glow and inner glow */
+    background: linear-gradient(135deg, #007700, #005500);
+    color: #00ff00;
+    box-shadow: 0 0 15px #00cc00, inset 0 0 5px rgba(0,255,0,0.3);
+    transform: translateY(-1px);
 }
 
-/* App Container to account for fixed header and footer */
+/* App Container */
 .app-container {
     display: flex;
-    height: calc(100vh - 50px - 150px); /* Adjusted for new header/footer */
+    height: calc(100vh - 50px - 150px);
     width: 100%;
-    margin-top: 50px; /* Adjusted for new header height */
+    margin-top: 50px;
     box-sizing: border-box;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
+/* Map Container */
 #map-container {
     flex-grow: 1;
-    height: 100%; 
+    height: 100%;
     border-right: 1px solid #002200;
-    background-color: #000000; /* Black map background before tiles load */
-}
-
-/* Make Leaflet map tiles slightly less bright if possible */
-.leaflet-tile-pane {
-    /* filter: brightness(0.8) contrast(1.1); /* This was making the map too dark */
-    /* The Stamen Toner tiles are already black and white, so aggressive filtering isn't needed */
-    /* and can make them disappear on a black background. */
-    /* Consider a very slight brightness increase if anything, or leave unfiltered. */
-    /* For now, let's remove the filter to ensure visibility. */
-}
-
-
-#attack-list-container {
-    width: 320px; /* Slightly narrower */
-    height: 100%; 
-    overflow-y: auto;
     background-color: #000000;
+    position: relative;
+}
+
+/* Map styling enhancements */
+.leaflet-container {
+    background: #000000;
+}
+
+.attack-line {
+    animation: attack-pulse 1s ease-out;
+}
+
+@keyframes attack-pulse {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+/* Attack List Container */
+#attack-list-container {
+    width: 350px;
+    height: 100%;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #000000 0%, #050505 100%);
     color: #00e600;
-    padding: 10px; /* Reduced padding */
+    padding: 15px;
     box-sizing: border-box;
-    box-shadow: -1px 0 3px rgba(0,255,0,0.15);
+    box-shadow: -2px 0 10px rgba(0,255,0,0.1);
     border-left: 1px solid #002200;
 }
 
 #attack-list-container h2 {
     margin-top: 0;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #003300;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #003300;
     font-size: 1.3em;
     color: #00ff00;
-    text-shadow: 0 0 2px #00ff00;
+    text-shadow: 0 0 5px #00ff00;
     font-weight: normal;
+    letter-spacing: 1px;
 }
 
 #attack-list {
@@ -128,92 +183,169 @@ body, html {
 }
 
 .attack-item-placeholder {
-    padding: 6px 0;
+    padding: 10px;
     font-style: italic;
     color: #009900;
+    text-align: center;
 }
 
+/* Enhanced Attack Item Styling */
 .attack-item {
-    padding: 8px 10px;
+    padding: 10px;
     border-bottom: 1px solid #002200;
-    font-size: 0.85em; /* Slightly smaller text in list */
-    line-height: 1.3;
-    background-color: transparent; 
-    margin-bottom: 4px;
-    border-radius: 0px;
-    transition: background-color 0.15s ease;
-}
-.attack-item:hover {
-    background-color: #001100; /* Very subtle hover */
-}
-.attack-item strong {
-    font-size: 1em; /* Normalized strong tag */
-    color: #33ff33;
-}
-.attack-item small {
-    color: #00cc00;
-    display: block;
-    margin-top: 2px;
-}
-.attack-item:last-child {
-    border-bottom: none;
+    font-size: 0.85em;
+    line-height: 1.4;
+    background: linear-gradient(90deg, rgba(0,17,0,0.3) 0%, transparent 100%);
+    margin-bottom: 6px;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    animation: slide-in 0.3s ease-out;
 }
 
-/* Overview Section (fixed at bottom) */
+@keyframes slide-in {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.attack-item:hover {
+    background: linear-gradient(90deg, rgba(0,34,0,0.5) 0%, rgba(0,17,0,0.2) 100%);
+    transform: translateX(2px);
+}
+
+.attack-item.blocked-attack {
+    opacity: 0.7;
+    background: linear-gradient(90deg, rgba(0,17,0,0.2) 0%, transparent 100%);
+}
+
+.attack-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.attack-header strong {
+    color: #33ff33;
+    font-size: 1.05em;
+}
+
+.attack-status {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+.attack-status.blocked {
+    background: rgba(0,100,0,0.3);
+    color: #00aa00;
+    border: 1px solid #005500;
+}
+
+.attack-status.active {
+    background: rgba(100,0,0,0.3);
+    color: #ff9900;
+    border: 1px solid #aa5500;
+}
+
+.attack-details {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 4px 0;
+}
+
+.severity-badge {
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 0.75em;
+    font-weight: bold;
+    color: #000;
+    text-transform: uppercase;
+}
+
+.attack-target {
+    color: #00cc00;
+    flex: 1;
+}
+
+.attack-meta {
+    display: block;
+    color: #009900;
+    margin-top: 4px;
+    font-family: monospace;
+}
+
+.attack-time {
+    display: block;
+    color: #007700;
+    margin-top: 2px;
+    font-size: 0.8em;
+}
+
+/* Overview Section */
 #overview-section {
-    background-color: #000000;
+    background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
     color: #00e600;
-    padding: 8px 15px; /* Reduced padding */
-    box-shadow: 0 -1px 3px rgba(0,255,0,0.25);
+    padding: 10px 20px;
+    box-shadow: 0 -2px 10px rgba(0,255,0,0.2);
     width: 100%;
     box-sizing: border-box;
     position: fixed;
     bottom: 0;
     left: 0;
     z-index: 1001;
-    height: 150px; /* Reduced footer height */
-    border-top: 1px solid #002200;
+    height: 150px;
+    border-top: 2px solid #002200;
 }
 
-#overview-section h3 { 
-    margin-top: 0;
-    margin-bottom: 6px;
+#overview-section h3 {
+    margin: 0 0 10px 0;
     text-align: center;
-    font-size: 1.1em; /* Slightly smaller */
+    font-size: 1.1em;
     color: #00ff00;
     border-bottom: 1px solid #003300;
     padding-bottom: 5px;
-    text-shadow: 0 0 2px #00ff00;
+    text-shadow: 0 0 5px #00ff00;
     font-weight: normal;
+    letter-spacing: 2px;
 }
 
 .overview-content {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; 
-    flex-wrap: nowrap; 
-    height: calc(100% - 25px); /* Adjusted for h3 */
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    height: calc(100% - 35px);
 }
 
-/* Attack Type Circles Container */
+/* Attack Type Circles */
 #attack-type-counts {
-    flex-basis: 50%; 
+    flex-basis: 55%;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center; 
-    padding: 0px; 
-    overflow-y: auto; 
-    max-height: 100%; 
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0;
+    overflow-y: auto;
+    max-height: 100%;
+    gap: 5px;
 }
+
 .attack-circle {
-    width: 100px; /* Smaller circles */
-    height: 100px;
-    margin: 3px;
+    width: 85px;
+    height: 85px;
+    margin: 2px;
     padding: 5px;
     border-radius: 50%;
-    background-color: #001100; /* Darker green base */
-    border: 1px solid #004400; /* Medium dark green border */
+    background: radial-gradient(circle at 30% 30%, #002200, #000000);
+    border: 2px solid #004400;
     color: #00e600;
     display: flex;
     flex-direction: column;
@@ -221,106 +353,172 @@ body, html {
     justify-content: center;
     text-align: center;
     box-sizing: border-box;
-    box-shadow: 0 1px 2px rgba(0,255,0,0.15);
-    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
-.attack-circle:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 8px #00bb00; /* Subtler glow */
-}
-.attack-circle h5.circle-attack-name { font-size: 0.75em; margin: 0 0 2px 0; color: #33ff33; font-weight: normal; }
-.attack-circle p.circle-attack-count { font-size: 1.2em; margin: 0 0 2px 0; color: #00ff00; font-weight: normal; }
-.attack-circle p.circle-last-attack-time { font-size: 0.6em; margin: 0; color: #00cc00; }
-.attack-circle p.circle-last-attack-time span { font-weight: normal; color: #00cc00; }
 
-/* Country Attack Stats List (Leaderboard) */
-#country-attack-stats {
-    flex-basis: 26%; 
-    padding: 0 6px;
-    box-sizing: border-box;
-    column-count: 2;
-    column-gap: 8px;
-    max-height: 100%; 
-    overflow-y: auto; 
+.attack-circle::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, transparent, rgba(0,255,0,0.1));
+    animation: rotate 10s linear infinite;
 }
-#country-attack-stats h4 { 
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 0.85em;
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.attack-circle:hover {
+    transform: scale(1.05);
+    border-color: #00ff00;
+    box-shadow: 0 0 20px #00bb00, inset 0 0 10px rgba(0,255,0,0.2);
+}
+
+.attack-circle h5.circle-attack-name {
+    font-size: 0.65em;
+    margin: 0 0 3px 0;
+    color: #33ff33;
+    font-weight: normal;
+    z-index: 1;
+}
+
+.attack-circle p.circle-attack-count {
+    font-size: 1.1em;
+    margin: 0 0 2px 0;
+    color: #00ff00;
+    font-weight: bold;
+    z-index: 1;
+}
+
+.attack-circle p.circle-last-attack-time {
+    font-size: 0.55em;
+    margin: 0;
     color: #00cc00;
+    z-index: 1;
+}
+
+/* Country Attack Stats */
+#country-attack-stats {
+    flex-basis: 25%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+#country-attack-stats h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    color: #00ff00;
     text-align: center;
-    padding-bottom: 3px;
+    padding-bottom: 5px;
     border-bottom: 1px solid #003300;
-    column-span: all;
-    -webkit-column-span: all; 
     font-weight: normal;
 }
+
 .country-stat-item {
     display: flex;
     justify-content: space-between;
-    padding: 1px 0;
+    padding: 3px 0;
     font-size: 0.75em;
-    border-bottom: 1px dashed #002200;
-    break-inside: avoid-column;
-    page-break-inside: avoid;
+    border-bottom: 1px dashed #001100;
+    transition: all 0.2s ease;
 }
-.country-stat-item:last-child { border-bottom: none; }
-.country-name { color: #33ff33; margin-right: 4px; }
-.country-count { font-weight: normal; color: #00ff00; }
 
-/* Overall Last Attack Info */
+.country-stat-item:hover {
+    background: rgba(0,255,0,0.05);
+    padding-left: 5px;
+}
+
+.country-stat-item:last-child {
+    border-bottom: none;
+}
+
+.country-name {
+    color: #33ff33;
+    margin-right: 5px;
+}
+
+.country-count {
+    font-weight: bold;
+    color: #00ff00;
+}
+
+/* System Status */
 #last-attack-info {
-    flex-basis: 22%; 
+    flex-basis: 20%;
     text-align: right;
-    padding-left: 6px;
+    padding: 0 10px;
     box-sizing: border-box;
     max-height: 100%;
 }
+
 #last-attack-info h4 {
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 0.85em;
-    color: #00cc00;
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    color: #00ff00;
     font-weight: normal;
 }
-#last-attack-info p { margin: 4px 0; font-size: 0.8em; }
-#time-since-last-attack { font-weight: normal; color: #00ff00; }
 
-/* NEW: Styles for Title on Map */
+#last-attack-info p {
+    margin: 5px 0;
+    font-size: 0.8em;
+    color: #00cc00;
+}
+
+#time-since-last-attack {
+    font-weight: bold;
+    color: #00ff00;
+    font-size: 1.1em;
+}
+
+/* Map Title Overlay */
 #map-title {
     position: absolute;
-    top: 15px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.6);
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(0,20,0,0.8));
     color: #00ff00;
-    padding: 6px 15px;
-    border-radius: 0px;
-    font-size: 1.4em; /* Smaller map title */
+    padding: 8px 20px;
+    border-radius: 2px;
+    font-size: 1.4em;
     font-weight: normal;
     z-index: 1000;
     pointer-events: none;
-    text-shadow: 0 0 6px #00ff00;
-    border: 1px solid #002200;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00aa00;
+    border: 1px solid #003300;
+    letter-spacing: 2px;
+    animation: title-glow 3s ease-in-out infinite;
 }
 
+@keyframes title-glow {
+    0%, 100% { box-shadow: 0 0 10px rgba(0,255,0,0.5); }
+    50% { box-shadow: 0 0 20px rgba(0,255,0,0.8), inset 0 0 10px rgba(0,255,0,0.2); }
+}
 
-/* NEW: Styles for Disclaimer Modal */
+/* Modal Styles */
 .modal-overlay {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 5, 0, 0.9); /* Darker, less green overlay */
+    background: radial-gradient(circle, rgba(0,10,0,0.95), rgba(0,0,0,0.98));
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 2000;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
 .modal-overlay.visible {
@@ -329,71 +527,104 @@ body, html {
 }
 
 .modal-content {
-    background-color: #000000;
+    background: linear-gradient(135deg, #000000, #0a0f0a);
     color: #00e600;
-    padding: 20px 25px;
-    border-radius: 0px;
+    padding: 25px 30px;
+    border-radius: 4px;
     width: 90%;
-    max-width: 500px; /* Slightly smaller max width */
+    max-width: 500px;
     text-align: left;
     position: relative;
-    box-shadow: 0 0 15px rgba(0,255,0,0.4);
-    transform: scale(0.97);
-    transition: transform 0.2s ease;
-    border: 1px solid #003300;
+    box-shadow: 0 0 30px rgba(0,255,0,0.3), inset 0 0 20px rgba(0,255,0,0.05);
+    transform: scale(0.9) rotateX(10deg);
+    transition: all 0.3s ease;
+    border: 2px solid #003300;
 }
 
 .modal-overlay.visible .modal-content {
-    transform: scale(1);
+    transform: scale(1) rotateX(0);
 }
 
 .modal-content h2 {
     margin-top: 0;
-    color: #33ff33;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #003300;
-    padding-bottom: 8px;
-    text-shadow: 0 0 4px #33ff33;
+    color: #00ff00;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #003300;
+    padding-bottom: 10px;
+    text-shadow: 0 0 10px #00ff00;
     font-weight: normal;
-    font-size: 1.2em;
+    font-size: 1.4em;
+    letter-spacing: 2px;
 }
 
 .modal-content p {
-    margin-bottom: 12px;
-    line-height: 1.5;
-    font-size: 0.9em;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    font-size: 0.95em;
+    color: #00cc00;
 }
 
 .modal-close-button {
     position: absolute;
-    top: 8px;
-    right: 12px;
+    top: 10px;
+    right: 15px;
     font-size: 2em;
     color: #009900;
     cursor: pointer;
     line-height: 1;
-    transition: color 0.15s ease, text-shadow 0.15s ease;
+    transition: all 0.2s ease;
 }
 
 .modal-close-button:hover {
     color: #00ff00;
-    text-shadow: 0 0 4px #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+    transform: rotate(90deg);
 }
 
-/* Optional: Specific style for disclaimer button if needed,
-   but it should largely work with .header-button styles */
+/* Disclaimer Button Special Style */
 #disclaimer-button {
-    background-color: #005500; /* Darker green for disclaimer button */
+    background: linear-gradient(135deg, #005500, #003300);
     color: #00e600;
-    border-color: #003300;
-}
-#disclaimer-button:hover {
-    background-color: #003300;
-    color: #33ff33;
-    border-color: #007700;
-    box-shadow: 0 0 5px #00cc00, inset 0 0 3px rgba(0,255,0,0.4);
+    border-color: #002200;
 }
 
-/* Ensure z-index values are respected:
-   Modal (2000) > Header (1002) > Overview (1001) > Map Title (1000) > Leaflet controls (usually 400-1000)
-*/
+#disclaimer-button:hover {
+    background: linear-gradient(135deg, #003300, #001100);
+    color: #00ff00;
+    border-color: #00aa00;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1200px) {
+    #attack-list-container {
+        width: 300px;
+    }
+    
+    .attack-circle {
+        width: 75px;
+        height: 75px;
+    }
+    
+    .attack-circle h5.circle-attack-name {
+        font-size: 0.55em;
+    }
+}
+
+/* Animation for live data feeling */
+@keyframes data-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.attack-item:first-child {
+    animation: data-pulse 1s ease-in-out;
+}
+
+/* Loading animation */
+@keyframes loading {
+    0% { content: "Monitoring."; }
+    33% { content: "Monitoring.."; }
+    66% { content: "Monitoring..."; }
+    100% { content: "Monitoring."; }
+}
