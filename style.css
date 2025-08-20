@@ -96,21 +96,6 @@ body, html {
     overflow: hidden;
 }
 
-.header-links a.header-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-}
-
-.header-links a.header-button:hover::before {
-    left: 100%;
-}
-
 .header-links a.header-button:hover {
     background: linear-gradient(135deg, #007700, #005500);
     color: #00ff00;
@@ -581,7 +566,271 @@ body, html {
     transform: rotate(90deg);
 }
 
-/* Disclaimer Button Special Style */
+/* Modal Disclaimer Footer */
+.disclaimer-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #003300;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    color: #00cc00;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.checkbox-container input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.modal-button {
+    background: linear-gradient(135deg, #00cc00, #00aa00);
+    color: #000000;
+    border: 1px solid #007700;
+    padding: 8px 20px;
+    border-radius: 2px;
+    font-size: 0.95em;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-button:hover {
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    box-shadow: 0 0 15px #00ff00;
+    transform: scale(1.05);
+}
+
+/* Additional UI Elements */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 15px;
+    padding: 4px 10px;
+    background: rgba(0,50,0,0.3);
+    border: 1px solid #003300;
+    border-radius: 2px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00ff00;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.status-text {
+    font-size: 0.8em;
+    color: #00ff00;
+    letter-spacing: 1px;
+}
+
+/* Feed Controls */
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.feed-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.feed-btn {
+    background: #002200;
+    color: #00ff00;
+    border: 1px solid #003300;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.feed-btn:hover {
+    background: #003300;
+    box-shadow: 0 0 5px #00ff00;
+}
+
+#feed-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.feed-filter {
+    flex: 1;
+    background: #001100;
+    color: #00ff00;
+    border: 1px solid #003300;
+    padding: 4px;
+    border-radius: 2px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8em;
+}
+
+/* Map Controls */
+#map-controls {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.map-control-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(0,0,0,0.8);
+    color: #00ff00;
+    border: 1px solid #003300;
+    cursor: pointer;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.map-control-btn:hover {
+    background: #003300;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+/* Live Counter */
+#live-counter {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    z-index: 500;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid #003300;
+    padding: 8px 12px;
+    border-radius: 2px;
+}
+
+.counter-label {
+    color: #00cc00;
+    font-size: 0.8em;
+    margin-right: 8px;
+}
+
+.counter-value {
+    color: #00ff00;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+/* Loading Screen */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    transition: opacity 0.5s ease;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-title {
+    color: #00ff00;
+    font-size: 3em;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px #00ff00;
+    letter-spacing: 5px;
+    animation: pulse-glow 2s infinite;
+}
+
+.loading-bar {
+    width: 300px;
+    height: 4px;
+    background: #002200;
+    border: 1px solid #003300;
+    margin: 0 auto 20px;
+}
+
+.loading-progress {
+    height: 100%;
+    background: #00ff00;
+    animation: loading-fill 1s ease-out forwards;
+}
+
+@keyframes loading-fill {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.loading-text {
+    color: #00cc00;
+    font-size: 0.9em;
+    animation: blink 1s infinite;
+}
+
+/* Help Tooltip */
+.help-tooltip {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.95);
+    border: 2px solid #003300;
+    padding: 20px;
+    border-radius: 4px;
+    z-index: 2500;
+    color: #00ff00;
+}
+
+.help-tooltip h4 {
+    margin-top: 0;
+    color: #00ff00;
+    border-bottom: 1px solid #003300;
+    padding-bottom: 10px;
+}
+
+.help-tooltip ul {
+    list-style: none;
+    padding: 0;
+}
+
+.help-tooltip li {
+    margin: 8px 0;
+    color: #00cc00;
+}
+
+.help-tooltip kbd {
+    background: #002200;
+    border: 1px solid #003300;
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: #00ff00;
+    font-family: monospace;
+}
 #disclaimer-button {
     background: linear-gradient(135deg, #005500, #003300);
     color: #00e600;
