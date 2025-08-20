@@ -125,7 +125,6 @@ document.addEventListener('DOMContentLoaded', function () {
         sourceCountryStats[country.name] = { count: 0, blocked: 0 };
     });
 
-    const attackListElement = document.getElementById('attack-list');
     const MAX_LIST_ITEMS = 20;
     const MAX_MAP_LINES = 15;
     let displayedMapAttacks = [];
@@ -319,11 +318,50 @@ document.addEventListener('DOMContentLoaded', function () {
     function addAttackToList(attackData) {
         if (!attackData) return;
         
-        // Don't add to list if feed is paused, but continue processing the attack
+        // Skip adding to visual list if feed is paused
         if (feedPaused) return;
+
+        const attackListElement = document.getElementById('attack-list');
+        if (!attackListElement) {
+            console.error('Attack list element not found');
+            return;
+        }
 
         const currentPlaceholder = document.querySelector('.attack-item-placeholder');
         if (currentPlaceholder) currentPlaceholder.remove();
+
+        const listItem = document.createElement('li');
+        listItem.classList.add('attack-item');
+        if (attackData.isBlocked) listItem.classList.add('blocked-attack');
+        
+        listItem.setAttribute('data-attack-id', attackData.id);
+        const severityColor = getAttackColor(attackData.severity, attackData.isBlocked);
+        const statusIcon = attackData.isBlocked ? '🛡️' : '⚠️';
+        const statusText = attackData.isBlocked ? 'BLOCKED' : 'DETECTED';
+
+        listItem.innerHTML = `
+            <div class="attack-header">
+                <strong>${attackData.attackType}</strong>
+                <span class="attack-status ${attackData.isBlocked ? 'blocked' : 'active'}">${statusIcon} ${statusText}</span>
+            </div>
+            <div class="attack-details">
+                <span class="severity-badge" style="background-color:${severityColor}">${attackData.severity}</span>
+                <small class="attack-target">${attackData.targetSystem}</small>
+            </div>
+            <small class="attack-meta">
+                ${attackData.sourceCountry} → ${attackData.targetCity} | ${attackData.sourceIp}:${attackData.targetPort}
+            </small>
+            <small class="attack-time">${attackData.timestamp.toLocaleTimeString()}</small>
+        `;
+        listItem.style.borderLeft = `4px solid ${severityColor}`;
+
+        if (attackListElement) {
+            attackListElement.insertBefore(listItem, attackListElement.firstChild);
+            if (attackListElement.children.length > MAX_LIST_ITEMS) {
+                attackListElement.removeChild(attackListElement.lastChild);
+            }
+        }
+    }
 
         const listItem = document.createElement('li');
         listItem.classList.add('attack-item');
@@ -601,30 +639,38 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Start simulation with variable frequency
+    let attackGenerationActive = true;
+    
     function startSimulation() {
         console.log("MYRKUR Active - Monitoring cyber threats...");
         
         function scheduleNextAttack() {
+            if (!attackGenerationActive) return;
+            
             setTimeout(() => {
                 const newAttack = generateSimulatedAttack();
                 if (newAttack) {
-                    addAttackToList(newAttack);
+                    // Always add to map
                     drawAttackOnMap(newAttack);
+                    // Only add to list if not paused
+                    if (!feedPaused) {
+                        addAttackToList(newAttack);
+                    }
                 }
                 updateOverviewUI();
                 scheduleNextAttack();
             }, getAttackFrequency());
         }
         
-        // Initial attack
-        setTimeout(() => {
-            const newAttack = generateSimulatedAttack();
-            if (newAttack) {
-                addAttackToList(newAttack);
-                drawAttackOnMap(newAttack);
-            }
-            scheduleNextAttack();
-        }, 1000);
+        // Generate first attack immediately
+        const firstAttack = generateSimulatedAttack();
+        if (firstAttack) {
+            drawAttackOnMap(firstAttack);
+            addAttackToList(firstAttack);
+        }
+        
+        // Start the attack generation loop
+        scheduleNextAttack();
         
         // Update UI every second
         setInterval(updateOverviewUI, 1000);
@@ -742,6 +788,7 @@ document.addEventListener('DOMContentLoaded', function () {
             feedPaused = !feedPaused;
             pauseFeedBtn.textContent = feedPaused ? '▶' : '⏸';
             pauseFeedBtn.setAttribute('aria-label', feedPaused ? 'Resume Feed' : 'Pause Feed');
+            console.log('Feed', feedPaused ? 'paused' : 'resumed');
         });
     }
 
@@ -751,6 +798,46 @@ document.addEventListener('DOMContentLoaded', function () {
             if (attackList) {
                 attackList.innerHTML = '<li class="attack-item-placeholder">Feed cleared. Waiting for new data...</li>';
             }
+        });
+    }
+
+    // Filter controls
+    if (severityFilter) {
+        severityFilter.addEventListener('change', function() {
+            filterAttacks();
+        });
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            filterAttacks();
+        });
+    }
+
+    function filterAttacks() {
+        const severityValue = severityFilter ? severityFilter.value : 'all';
+        const statusValue = statusFilter ? statusFilter.value : 'all';
+        const attackItems = document.querySelectorAll('.attack-item');
+        
+        attackItems.forEach(item => {
+            let showItem = true;
+            
+            // Check severity filter
+            if (severityValue !== 'all') {
+                const itemSeverity = item.querySelector('.severity-badge')?.textContent.toLowerCase();
+                if (severityValue === 'critical' && itemSeverity !== 'critical') showItem = false;
+                else if (severityValue === 'high' && !['critical', 'high'].includes(itemSeverity)) showItem = false;
+                else if (severityValue === 'medium' && itemSeverity === 'low') showItem = false;
+            }
+            
+            // Check status filter
+            if (statusValue !== 'all') {
+                const isBlocked = item.classList.contains('blocked-attack');
+                if (statusValue === 'active' && isBlocked) showItem = false;
+                else if (statusValue === 'blocked' && !isBlocked) showItem = false;
+            }
+            
+            item.style.display = showItem ? 'block' : 'none';
         });
     }
 
