@@ -3,67 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iceland Cyberattack Visualizer</title>
+    <meta name="description" content="MYRKUR - Real-time visualization of simulated cyberattacks targeting Iceland's critical infrastructure">
+    <meta name="author" content="Andri Petur Hafthorsson">
+    <meta name="keywords" content="cybersecurity, iceland, visualization, threat monitoring, MYRKUR">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="MYRKUR - Iceland Cyberattack Visualizer">
+    <meta property="og:description" content="Real-time visualization of simulated cyber threats targeting Iceland">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://Myrkur.Andri.is/">
+    
+    <title>MYRKUR - Iceland Cyber Threat Monitor</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000'/><text x='16' y='24' font-family='monospace' font-size='20' fill='%2300ff00' text-anchor='middle'>M</text></svg>">
+    
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://basemaps.cartocdn.com">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-overlay">
+        <div class="loading-content">
+            <h1 class="loading-title">MYRKUR</h1>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">Initializing Cyber Threat Monitor...</p>
+        </div>
+    </div>
 
+    <!-- Main Header -->
     <header id="app-header">
         <div class="header-content">
             <div class="project-info">
                 <h1 class="project-title">MYRKUR</h1>
                 <p class="project-author">By: <span id="author-name">Andri Petur Hafthorsson</span></p>
+                <span class="status-indicator" id="system-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">ACTIVE</span>
+                </span>
             </div>
             <nav class="header-links">
-                <a href="https://andri.is/is/" id="website-link" class="header-button" target="_blank" rel="noopener noreferrer">Website</a>
-                <a href="https://www.linkedin.com/in/andripetur/" id="linkedin-link" class="header-button" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                <a href="#" id="disclaimer-button" class="header-button">Disclaimer</a>
+                <button id="stats-toggle" class="header-button" aria-label="Toggle Statistics">
+                    <span class="button-icon">📊</span> Stats
+                </button>
+                <a href="https://andri.is/is/" id="website-link" class="header-button" target="_blank" rel="noopener noreferrer">
+                    <span class="button-icon">🌐</span> Website
+                </a>
+                <a href="https://www.linkedin.com/in/andripetur/" id="linkedin-link" class="header-button" target="_blank" rel="noopener noreferrer">
+                    <span class="button-icon">💼</span> LinkedIn
+                </a>
+                <a href="https://github.com/andripetur" id="github-link" class="header-button" target="_blank" rel="noopener noreferrer">
+                    <span class="button-icon">💻</span> GitHub
+                </a>
+                <button id="disclaimer-button" class="header-button" aria-label="Show Disclaimer">
+                    <span class="button-icon">ℹ️</span> Info
+                </button>
             </nav>
         </div>
     </header>
 
-    <div class="app-container">
-        <div id="map-container">
+    <!-- Main Application Container -->
+    <main class="app-container">
+        <!-- Map Section -->
+        <section id="map-container" role="region" aria-label="Cyber Attack Map">
             <div id="map-title">CyberAttack Simulator</div>
+            
+            <!-- Map Controls Overlay -->
+            <div id="map-controls">
+                <button id="zoom-in" class="map-control-btn" aria-label="Zoom In">+</button>
+                <button id="zoom-out" class="map-control-btn" aria-label="Zoom Out">−</button>
+                <button id="reset-view" class="map-control-btn" aria-label="Reset View">⟲</button>
             </div>
-        <div id="attack-list-container">
-            <h2>Recent Attacks</h2>
-            <ul id="attack-list">
+            
+            <!-- Live Attack Counter -->
+            <div id="live-counter">
+                <span class="counter-label">Active Threats:</span>
+                <span class="counter-value" id="active-threats-count">0</span>
+            </div>
+        </section>
+        
+        <!-- Attack Feed Sidebar -->
+        <aside id="attack-list-container" role="complementary" aria-label="Recent Attacks">
+            <header class="feed-header">
+                <h2>Threat Feed</h2>
+                <div class="feed-controls">
+                    <button id="pause-feed" class="feed-btn" aria-label="Pause Feed">⏸</button>
+                    <button id="clear-feed" class="feed-btn" aria-label="Clear Feed">🗑</button>
+                </div>
+            </header>
+            
+            <!-- Filter Options -->
+            <div id="feed-filters">
+                <select id="severity-filter" class="feed-filter" aria-label="Filter by Severity">
+                    <option value="all">All Severities</option>
+                    <option value="critical">Critical Only</option>
+                    <option value="high">High+</option>
+                    <option value="medium">Medium+</option>
+                </select>
+                <select id="status-filter" class="feed-filter" aria-label="Filter by Status">
+                    <option value="all">All Status</option>
+                    <option value="active">Active Only</option>
+                    <option value="blocked">Blocked Only</option>
+                </select>
+            </div>
+            
+            <ul id="attack-list" role="log" aria-live="polite" aria-label="Attack Log">
                 <li class="attack-item-placeholder">Waiting for attack data...</li>
             </ul>
-        </div>
-    </div>
+        </aside>
+    </main>
 
-    <div id="overview-section">
-        <h3>Attack Statistics</h3>
+    <!-- Statistics Dashboard -->
+    <footer id="overview-section" role="contentinfo" aria-label="Attack Statistics">
+        <h3>Threat Intelligence Dashboard</h3>
         <div class="overview-content">
-            <div id="attack-type-counts">
+            <!-- Attack Type Statistics -->
+            <div id="attack-type-counts" role="region" aria-label="Attack Types">
+                <!-- Dynamically populated -->
+            </div>
+            
+            <!-- Country Statistics -->
+            <div id="country-attack-stats" role="region" aria-label="Attack Sources">
+                <h4>Top Attack Sources:</h4>
+                <!-- Dynamically populated -->
+            </div>
+            
+            <!-- System Status -->
+            <div id="last-attack-info" role="status" aria-label="System Status">
+                <h4>System Status:</h4>
+                <p>Last Attack: <span id="time-since-last-attack">N/A</span></p>
+                <p class="system-metrics">
+                    <span id="total-attacks">Total: 0</span>
+                    <span id="block-rate">Block Rate: 0%</span>
+                </p>
+                <div class="threat-level">
+                    <span class="threat-label">Threat Level:</span>
+                    <div class="threat-indicator" id="threat-level-indicator">
+                        <div class="threat-bar" data-level="low"></div>
+                    </div>
                 </div>
-            <div id="country-attack-stats">
-                <h4>Attacks by Source:</h4>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Advanced Statistics Modal (Hidden by default) -->
+    <div id="stats-modal" class="modal-overlay" role="dialog" aria-labelledby="stats-title" aria-hidden="true">
+        <div class="modal-content stats-content">
+            <button class="modal-close-button" aria-label="Close Statistics">&times;</button>
+            <h2 id="stats-title">Advanced Threat Analytics</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Attack Timeline</h3>
+                    <canvas id="timeline-chart"></canvas>
                 </div>
-            <div id="last-attack-info">
-                <h4>Last Attack:</h4>
-                <p><span id="time-since-last-attack">N/A</span></p>
+                <div class="stat-card">
+                    <h3>Top Targets</h3>
+                    <div id="targets-list"></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Attack Vectors</h3>
+                    <div id="vectors-breakdown"></div>
+                </div>
+                <div class="stat-card">
+                    <h3>Geographic Distribution</h3>
+                    <div id="geo-stats"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="disclaimer-modal" class="modal-overlay">
+    <!-- Disclaimer Modal -->
+    <div id="disclaimer-modal" class="modal-overlay" role="dialog" aria-labelledby="disclaimer-title" aria-hidden="true">
         <div class="modal-content">
-            <span class="modal-close-button">&times;</span>
-            <h2>Disclaimer</h2>
-            <p>All data displayed in this CyberAttack Simulator is entirely simulated and based on approximated internet sourced averages for illustrative and educational purposes only.</p>
-            <p>No real-time cyberattack data is used or represented. The events, sources, targets, and frequencies are not factual representations of actual incidents.</p>
+            <button class="modal-close-button" aria-label="Close Disclaimer">&times;</button>
+            <h2 id="disclaimer-title">⚠️ Important Disclaimer</h2>
+            <p>
+                <strong>All data displayed in MYRKUR is entirely simulated</strong> and based on approximated 
+                internet-sourced averages for illustrative and educational purposes only.
+            </p>
+            <p>
+                No real-time cyberattack data is used or represented. The events, sources, targets, 
+                and frequencies are fictional representations designed to demonstrate cybersecurity 
+                visualization concepts.
+            </p>
+            <p>
+                This project is created by <strong>Andri Petur Hafthorsson</strong> as a demonstration 
+                of web development and data visualization skills.
+            </p>
+            <div class="disclaimer-footer">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="dont-show-again">
+                    <span>Don't show this again</span>
+                </label>
+                <button id="acknowledge-btn" class="modal-button">I Understand</button>
+            </div>
         </div>
     </div>
 
+    <!-- Keyboard Shortcuts Help -->
+    <div id="keyboard-help" class="help-tooltip" aria-hidden="true">
+        <h4>Keyboard Shortcuts</h4>
+        <ul>
+            <li><kbd>Space</kbd> - Pause/Resume Feed</li>
+            <li><kbd>C</kbd> - Clear Feed</li>
+            <li><kbd>S</kbd> - Toggle Stats</li>
+            <li><kbd>R</kbd> - Reset Map View</li>
+            <li><kbd>+/-</kbd> - Zoom In/Out</li>
+            <li><kbd>?</kbd> - Show This Help</li>
+            <li><kbd>Esc</kbd> - Close Modals</li>
+        </ul>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
     <script src="script.js"></script>
+    
+    <!-- Loading Complete Script -->
+    <script>
+        // Hide loading screen when page is ready
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(function() {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
