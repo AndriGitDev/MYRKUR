@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const map = L.map('map-container').setView([64.9631, -19.0208], 6);
+    const map = L.map('map-container', {
+        zoomControl: false  // Disable default Leaflet zoom controls
+    }).setView([64.9631, -19.0208], 6);
 
     // CartoDB Dark Matter tiles for cyber aesthetic
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -316,6 +318,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addAttackToList(attackData) {
         if (!attackData) return;
+        
+        // Don't add to list if feed is paused, but continue processing the attack
+        if (feedPaused) return;
 
         const currentPlaceholder = document.querySelector('.attack-item-placeholder');
         if (currentPlaceholder) currentPlaceholder.remove();
@@ -445,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${Math.floor(secondsAgo / 86400)}d`;
     }
     
+    // Update overview UI and stats
     function updateOverviewUI() {
         // Update attack type circles
         attackTypes.forEach(type => {
@@ -498,6 +504,82 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 parent.innerHTML = `<h4>System Status:</h4><p>Monitoring...</p>`;
             }
+        }
+
+        // Update live counter
+        const activeThreatsCount = document.getElementById('active-threats-count');
+        if (activeThreatsCount) {
+            activeThreatsCount.textContent = displayedMapAttacks.length;
+        }
+
+        // Update advanced stats modal if visible
+        if (statsModal && statsModal.classList.contains('visible')) {
+            updateAdvancedStats();
+        }
+    }
+
+    // Update advanced statistics in modal
+    function updateAdvancedStats() {
+        // Update targets list
+        const targetsList = document.getElementById('targets-list');
+        if (targetsList) {
+            const targetCounts = {};
+            // This would normally track actual targets hit, simplified for demo
+            targetCities.forEach(city => {
+                targetCounts[city.name] = Math.floor(Math.random() * 20);
+            });
+            
+            targetsList.innerHTML = Object.entries(targetCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([city, count]) => `
+                    <div class="stat-item">
+                        <span>${city}</span>
+                        <span class="stat-value">${count}</span>
+                    </div>
+                `).join('');
+        }
+
+        // Update vectors breakdown
+        const vectorsBreakdown = document.getElementById('vectors-breakdown');
+        if (vectorsBreakdown) {
+            const topVectors = Object.entries(attackStats)
+                .sort((a, b) => b[1].count - a[1].count)
+                .slice(0, 5);
+            
+            vectorsBreakdown.innerHTML = topVectors.map(([type, stats]) => `
+                <div class="stat-item">
+                    <span>${type}</span>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" style="width: ${(stats.count / totalAttacksCount) * 100}%"></div>
+                    </div>
+                    <span class="stat-value">${stats.count}</span>
+                </div>
+            `).join('');
+        }
+
+        // Update geographic stats
+        const geoStats = document.getElementById('geo-stats');
+        if (geoStats) {
+            const topCountries = Object.entries(sourceCountryStats)
+                .sort((a, b) => b[1].count - a[1].count)
+                .slice(0, 5);
+            
+            geoStats.innerHTML = topCountries.map(([country, stats]) => {
+                const percentage = totalAttacksCount > 0 ? ((stats.count / totalAttacksCount) * 100).toFixed(1) : 0;
+                return `
+                    <div class="stat-item">
+                        <span>${country}</span>
+                        <span class="stat-value">${percentage}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Simple timeline chart (text-based for now)
+        const timelineChart = document.getElementById('timeline-chart');
+        if (timelineChart && !timelineChart.dataset.initialized) {
+            timelineChart.innerHTML = '<div style="color:#00ff00;padding:20px;text-align:center;">Attack frequency visualization active</div>';
+            timelineChart.dataset.initialized = 'true';
         }
     }
 
