@@ -548,15 +548,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalCloseButton = disclaimerModal ? disclaimerModal.querySelector('.modal-close-button') : null;
 
     if (disclaimerModal) {
-        // Show on load
-        setTimeout(() => {
+        // Timeout reference for auto-close
+        let disclaimerTimeout = null;
+
+        // Function to show disclaimer with auto-close timeout
+        function showDisclaimer() {
             disclaimerModal.classList.add('visible');
-        }, 500);
+            // Auto-close after 5 seconds
+            disclaimerTimeout = setTimeout(() => {
+                closeDisclaimer();
+            }, 5000);
+        }
 
         // Close functions
         function closeDisclaimer() {
+            // Clear any existing timeout
+            if (disclaimerTimeout) {
+                clearTimeout(disclaimerTimeout);
+                disclaimerTimeout = null;
+            }
             disclaimerModal.classList.remove('visible');
         }
+
+        // Show on load
+        setTimeout(() => {
+            showDisclaimer();
+        }, 500);
 
         if (acknowledgeBtn) {
             acknowledgeBtn.addEventListener('click', closeDisclaimer);
@@ -569,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (disclaimerButton) {
             disclaimerButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                disclaimerModal.classList.add('visible');
+                showDisclaimer();
             });
         }
 
