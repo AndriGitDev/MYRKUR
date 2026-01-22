@@ -95,6 +95,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize attack type display circles
     const attackCountsContainer = document.getElementById('attack-type-counts');
     if (attackCountsContainer) {
+        // Find or create the grid container
+        let gridContainer = attackCountsContainer.querySelector('.attack-types-grid');
+        if (!gridContainer) {
+            gridContainer = document.createElement('div');
+            gridContainer.classList.add('attack-types-grid');
+            attackCountsContainer.appendChild(gridContainer);
+        }
+
         attackTypes.forEach(type => {
             const typeId = type.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
             const circleDiv = document.createElement('div');
@@ -103,10 +111,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 <h5 class="circle-attack-name">${type.name}</h5>
                 <p class="circle-attack-count" id="count-${typeId}">0</p>
                 <p class="circle-last-attack-time">
-                    <span id="time-since-${typeId}">N/A</span>
+                    <span id="time-since-${typeId}">--</span>
                 </p>
             `;
-            attackCountsContainer.appendChild(circleDiv);
+            gridContainer.appendChild(circleDiv);
         });
     }
 
@@ -259,22 +267,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function getAttackColor(severity, isBlocked = false) {
-        if (isBlocked) {
-            switch(severity) {
-                case "Low": return '#2e7d32';
-                case "Medium": return '#f57c00';
-                case "High": return '#e65100';
-                case "Critical": return '#b71c1c';
-                default: return '#616161';
-            }
-        }
-        switch(severity) {
-            case "Low": return '#66bb6a';
-            case "Medium": return '#ffca28';
-            case "High": return '#ff9800';
-            case "Critical": return '#ff5252';
-            default: return '#9e9e9e';
-        }
+        // Modern color palette matching CSS variables
+        const colors = {
+            Low: { active: '#00d4aa', blocked: '#007a63' },
+            Medium: { active: '#ffd23f', blocked: '#b39200' },
+            High: { active: '#ff8c42', blocked: '#b35f2d' },
+            Critical: { active: '#ff3a5e', blocked: '#b32941' }
+        };
+
+        const colorSet = colors[severity] || colors.Medium;
+        return isBlocked ? colorSet.blocked : colorSet.active;
     }
 
     function addAttackToList(attackData) {
@@ -289,10 +291,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const listItem = document.createElement('li');
         listItem.classList.add('attack-item');
         if (attackData.isBlocked) listItem.classList.add('blocked-attack');
-        
+
         const severityColor = getAttackColor(attackData.severity, attackData.isBlocked);
-        const statusIcon = attackData.isBlocked ? '🛡️' : '⚠️';
-        const statusText = attackData.isBlocked ? 'BLOCKED' : 'DETECTED';
+        const statusIcon = attackData.isBlocked ? '[+]' : '[!]';
+        const statusText = attackData.isBlocked ? 'BLOCKED' : 'ACTIVE';
+
+        // Severity badge colors for text
+        const severityTextColors = {
+            Low: '#0a0a0f',
+            Medium: '#0a0a0f',
+            High: '#0a0a0f',
+            Critical: '#ffffff'
+        };
 
         listItem.innerHTML = `
             <div class="attack-header">
@@ -300,18 +310,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 <span class="attack-status ${attackData.isBlocked ? 'blocked' : 'active'}">${statusIcon} ${statusText}</span>
             </div>
             <div class="attack-details">
-                <span class="severity-badge" style="background-color:${severityColor}">${attackData.severity}</span>
+                <span class="severity-badge" style="background-color:${severityColor}; color:${severityTextColors[attackData.severity] || '#0a0a0f'}">${attackData.severity.toUpperCase()}</span>
                 <small class="attack-target">${attackData.targetSystem}</small>
             </div>
             <small class="attack-meta">
-                ${attackData.sourceCountry} → ${attackData.targetCity} | ${attackData.sourceIp}:${attackData.targetPort}
+                ${attackData.sourceCountry} &gt; ${attackData.targetCity} // ${attackData.sourceIp}:${attackData.targetPort}
             </small>
-            <small class="attack-time">${attackData.timestamp.toLocaleTimeString()}</small>
+            <small class="attack-time">${attackData.timestamp.toLocaleTimeString('en-US', { hour12: false })}</small>
         `;
-        listItem.style.borderLeft = `4px solid ${severityColor}`;
+        listItem.style.setProperty('--attack-color', severityColor);
+        listItem.querySelector('.attack-item::before')?.style.setProperty('background', severityColor);
+
+        // Set the left border color using inline style
+        listItem.style.borderLeftColor = severityColor;
+        listItem.style.borderLeftWidth = '3px';
+        listItem.style.borderLeftStyle = 'solid';
 
         attackListElement.insertBefore(listItem, attackListElement.firstChild);
-        
+
         while (attackListElement.children.length > MAX_LIST_ITEMS) {
             attackListElement.removeChild(attackListElement.lastChild);
         }
@@ -402,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (countElement && attackStats[type.name]) {
                 const stats = attackStats[type.name];
                 const blockRate = stats.count > 0 ? Math.round((stats.blocked / stats.count) * 100) : 0;
-                countElement.innerHTML = `${stats.count} <span style="font-size:0.7em;color:#00aa00">(${blockRate}%⛨)</span>`;
+                countElement.innerHTML = `${stats.count} <span style="font-size:0.6em;color:#00d4aa;display:block">${blockRate}%</span>`;
             }
             if (timeSinceElement && attackStats[type.name]) {
                 timeSinceElement.innerText = formatTimeSince(attackStats[type.name].lastAttackTimestamp);
@@ -416,25 +432,73 @@ document.addEventListener('DOMContentLoaded', function () {
                 .map(([name, stats]) => ({ name, ...stats }))
                 .filter(c => c.count > 0)
                 .sort((a, b) => b.count - a.count)
-                .slice(0, 10);
+                .slice(0, 8);
 
-            countryContainer.innerHTML = '<h4>Top Attack Sources:</h4>';
-            sortedCountries.forEach(country => {
+            // Find or create the country list container
+            let countryList = countryContainer.querySelector('.country-list');
+            if (!countryList) {
+                countryList = document.createElement('div');
+                countryList.classList.add('country-list');
+                countryContainer.appendChild(countryList);
+            }
+
+            countryList.innerHTML = '';
+            sortedCountries.forEach((country, index) => {
                 const blockRate = country.count > 0 ? Math.round((country.blocked / country.count) * 100) : 0;
                 const statDiv = document.createElement('div');
                 statDiv.classList.add('country-stat-item');
                 statDiv.innerHTML = `
-                    <span class="country-name">${country.name}:</span>
-                    <span class="country-count">${country.count} <span style="font-size:0.8em;color:#00aa00">(${blockRate}%⛨)</span></span>
+                    <span class="country-name"><span style="color:#5a5a6a;margin-right:6px">${String(index + 1).padStart(2, '0')}</span>${country.name}</span>
+                    <span class="country-count">${country.count}</span>
                 `;
-                countryContainer.appendChild(statDiv);
+                countryList.appendChild(statDiv);
             });
         }
 
         // Update system status
         const lastAttackElement = document.getElementById('time-since-last-attack');
         if (lastAttackElement) {
-            lastAttackElement.textContent = formatTimeSince(overallLastAttackTimestamp);
+            const timeSince = formatTimeSince(overallLastAttackTimestamp);
+            lastAttackElement.textContent = timeSince === 'Never' ? '--:--' : timeSince + ' ago';
+        }
+
+        // Update total attacks
+        const totalAttacksElement = document.getElementById('total-attacks');
+        if (totalAttacksElement) {
+            totalAttacksElement.textContent = totalAttacksCount.toLocaleString();
+        }
+
+        // Update block rate
+        const blockRateElement = document.getElementById('block-rate');
+        if (blockRateElement) {
+            const rate = totalAttacksCount > 0 ? Math.round((blockedAttacksCount / totalAttacksCount) * 100) : 0;
+            blockRateElement.textContent = rate + '%';
+        }
+
+        // Update threat level indicator
+        const threatBar = document.querySelector('.threat-bar');
+        const threatText = document.getElementById('threat-level-text');
+        if (threatBar && threatText) {
+            // Calculate threat level based on recent activity
+            const recentAttacks = displayedMapAttacks.length;
+            let threatLevel, threatWidth, threatColor;
+
+            if (recentAttacks <= 3) {
+                threatLevel = 'NOMINAL';
+                threatWidth = '20%';
+            } else if (recentAttacks <= 6) {
+                threatLevel = 'ELEVATED';
+                threatWidth = '40%';
+            } else if (recentAttacks <= 10) {
+                threatLevel = 'HIGH';
+                threatWidth = '65%';
+            } else {
+                threatLevel = 'CRITICAL';
+                threatWidth = '90%';
+            }
+
+            threatBar.style.width = threatWidth;
+            threatText.textContent = threatLevel;
         }
 
         // Update live counter
@@ -522,7 +586,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (pauseFeedBtn) {
         pauseFeedBtn.addEventListener('click', function() {
             feedPaused = !feedPaused;
-            pauseFeedBtn.textContent = feedPaused ? '▶' : '⏸';
+            const btnSymbol = pauseFeedBtn.querySelector('.btn-symbol');
+            if (btnSymbol) {
+                btnSymbol.textContent = feedPaused ? '>' : '||';
+            } else {
+                pauseFeedBtn.textContent = feedPaused ? '>' : '||';
+            }
             console.log('Feed', feedPaused ? 'paused' : 'resumed');
         });
     }
@@ -531,7 +600,7 @@ document.addEventListener('DOMContentLoaded', function () {
         clearFeedBtn.addEventListener('click', function() {
             const attackList = document.getElementById('attack-list');
             if (attackList) {
-                attackList.innerHTML = '<li class="attack-item-placeholder">Feed cleared. Waiting for new data...</li>';
+                attackList.innerHTML = '<li class="attack-item-placeholder">> Feed cleared. Awaiting threat data...</li>';
             }
         });
     }
