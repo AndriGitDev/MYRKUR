@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!timestamp) return "Never";
         const now = new Date();
         const secondsAgo = Math.round((now - timestamp) / 1000);
-        if (secondsAgo < 1) return "Now";
+        if (secondsAgo < 1) return "0s";
         if (secondsAgo < 60) return `${secondsAgo}s`;
         if (secondsAgo < 3600) return `${Math.floor(secondsAgo / 60)}m`;
         if (secondsAgo < 86400) return `${Math.floor(secondsAgo / 3600)}h`;
