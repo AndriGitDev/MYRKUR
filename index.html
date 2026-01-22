@@ -6,39 +6,58 @@
     <meta name="description" content="MYRKUR - Real-time visualization of simulated cyberattacks targeting Iceland's critical infrastructure">
     <meta name="author" content="Andri Petur Hafthorsson">
     <meta name="keywords" content="cybersecurity, iceland, visualization, threat monitoring, MYRKUR">
-    
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="MYRKUR - Iceland Cyberattack Visualizer">
     <meta property="og:description" content="Real-time visualization of simulated cyber threats targeting Iceland">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://Myrkur.Andri.is/">
-    
+
     <title>MYRKUR - Iceland Cyber Threat Monitor</title>
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000'/><text x='16' y='24' font-family='monospace' font-size='20' fill='%2300ff00' text-anchor='middle'>M</text></svg>">
-    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230a0a0f'/><rect x='2' y='2' width='28' height='28' rx='3' fill='none' stroke='%2300f0ff' stroke-width='1' opacity='0.5'/><text x='16' y='22' font-family='monospace' font-size='16' font-weight='bold' fill='%2300f0ff' text-anchor='middle'>M</text></svg>">
+
+    <!-- Google Fonts - Professional Monospace & UI Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
-    
+
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- Preconnect to improve performance -->
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="preconnect" href="https://basemaps.cartocdn.com">
 </head>
 <body>
+    <!-- Scanline Overlay -->
+    <div class="scanline-overlay"></div>
+
     <!-- Loading Screen -->
     <div id="loading-screen" class="loading-overlay">
         <div class="loading-content">
-            <h1 class="loading-title">MYRKUR</h1>
+            <div class="loading-logo">
+                <span class="logo-bracket">[</span>
+                <h1 class="loading-title">MYRKUR</h1>
+                <span class="logo-bracket">]</span>
+            </div>
+            <div class="loading-terminal">
+                <div class="terminal-line"><span class="prompt">&gt;</span> Initializing secure connection...</div>
+                <div class="terminal-line"><span class="prompt">&gt;</span> Loading threat intelligence modules...</div>
+                <div class="terminal-line"><span class="prompt">&gt;</span> Establishing monitoring protocols...</div>
+                <div class="terminal-line active"><span class="prompt">&gt;</span> <span class="typing-text">System ready_</span></div>
+            </div>
             <div class="loading-bar">
                 <div class="loading-progress"></div>
+                <div class="loading-glow"></div>
             </div>
-            <p class="loading-text">Initializing Cyber Threat Monitor...</p>
+            <p class="loading-status">THREAT MONITORING SYSTEM v2.0</p>
         </div>
     </div>
 
@@ -46,111 +65,198 @@
     <header id="app-header">
         <div class="header-content">
             <div class="project-info">
-                <h1 class="project-title">MYRKUR</h1>
-                <p class="project-author">By: <span id="author-name">Andri Petur Hafthorsson</span></p>
+                <div class="logo-container">
+                    <span class="logo-icon">&lt;/&gt;</span>
+                    <h1 class="project-title">MYRKUR</h1>
+                </div>
+                <div class="header-meta">
+                    <span class="author-tag">SEC_OPS</span>
+                    <span class="separator">//</span>
+                    <span class="project-author" id="author-name">Andri Petur Hafthorsson</span>
+                </div>
+            </div>
+            <div class="header-center">
                 <span class="status-indicator" id="system-status">
+                    <span class="status-ring"></span>
                     <span class="status-dot"></span>
-                    <span class="status-text">ACTIVE</span>
+                    <span class="status-text">SYSTEM ACTIVE</span>
                 </span>
             </div>
             <nav class="header-links">
                 <button id="stats-toggle" class="header-button" aria-label="Toggle Statistics">
-                    <span class="button-icon">📊</span> Stats
+                    <span class="btn-icon">[#]</span>
+                    <span class="btn-text">ANALYTICS</span>
                 </button>
                 <a href="https://andri.is/is/" id="website-link" class="header-button" target="_blank" rel="noopener noreferrer">
-                    <span class="button-icon">🌐</span> Website
+                    <span class="btn-icon">&lt;&gt;</span>
+                    <span class="btn-text">WEB</span>
                 </a>
                 <a href="https://www.linkedin.com/in/andripetur/" id="linkedin-link" class="header-button" target="_blank" rel="noopener noreferrer">
-                    <span class="button-icon">💼</span> LinkedIn
+                    <span class="btn-icon">[in]</span>
+                    <span class="btn-text">LINK</span>
                 </a>
                 <a href="https://github.com/AndriGitDev" id="github-link" class="header-button" target="_blank" rel="noopener noreferrer">
-                    <span class="button-icon">💻</span> GitHub
+                    <span class="btn-icon">&lt;/&gt;</span>
+                    <span class="btn-text">GIT</span>
                 </a>
-                <button id="disclaimer-button" class="header-button" aria-label="Show Disclaimer">
-                    <span class="button-icon">ℹ️</span> Info
+                <button id="disclaimer-button" class="header-button header-button--info" aria-label="Show Disclaimer">
+                    <span class="btn-icon">[?]</span>
+                    <span class="btn-text">INFO</span>
                 </button>
             </nav>
         </div>
+        <div class="header-border"></div>
     </header>
 
     <!-- Main Application Container -->
     <main class="app-container">
         <!-- Map Section -->
         <section id="map-container" role="region" aria-label="Cyber Attack Map">
-            <div id="map-title">CyberAttack Simulator</div>
-            
+            <div class="map-grid-overlay"></div>
+            <div id="map-title">
+                <span class="title-bracket">[</span>
+                <span class="title-text">THREAT VISUALIZATION</span>
+                <span class="title-bracket">]</span>
+                <span class="title-region">// ICELAND SECTOR</span>
+            </div>
+
             <!-- Map Controls Overlay -->
             <div id="map-controls">
-                <button id="zoom-in" class="map-control-btn" aria-label="Zoom In">+</button>
-                <button id="zoom-out" class="map-control-btn" aria-label="Zoom Out">−</button>
-                <button id="reset-view" class="map-control-btn" aria-label="Reset View">⟲</button>
+                <button id="zoom-in" class="map-control-btn" aria-label="Zoom In">
+                    <span>+</span>
+                </button>
+                <button id="zoom-out" class="map-control-btn" aria-label="Zoom Out">
+                    <span>-</span>
+                </button>
+                <button id="reset-view" class="map-control-btn" aria-label="Reset View">
+                    <span>R</span>
+                </button>
             </div>
-            
+
             <!-- Live Attack Counter -->
             <div id="live-counter">
-                <span class="counter-label">Active Threats:</span>
-                <span class="counter-value" id="active-threats-count">0</span>
+                <div class="counter-header">
+                    <span class="counter-icon">&lt;!</span>
+                    <span class="counter-label">ACTIVE THREATS</span>
+                </div>
+                <div class="counter-display">
+                    <span class="counter-value" id="active-threats-count">0</span>
+                    <span class="counter-unit">vectors</span>
+                </div>
+            </div>
+
+            <!-- Coordinates Display -->
+            <div id="coord-display">
+                <span class="coord-label">TARGET:</span>
+                <span class="coord-value">64.14N / 21.94W</span>
             </div>
         </section>
-        
+
         <!-- Attack Feed Sidebar -->
         <aside id="attack-list-container" role="complementary" aria-label="Recent Attacks">
             <header class="feed-header">
-                <h2>Threat Feed</h2>
+                <div class="feed-title-group">
+                    <span class="feed-icon">&gt;_</span>
+                    <h2>THREAT FEED</h2>
+                </div>
                 <div class="feed-controls">
-                    <button id="pause-feed" class="feed-btn" aria-label="Pause Feed">⏸</button>
-                    <button id="clear-feed" class="feed-btn" aria-label="Clear Feed">🗑</button>
+                    <button id="pause-feed" class="feed-btn" aria-label="Pause Feed" title="Pause/Resume">
+                        <span class="btn-symbol">||</span>
+                    </button>
+                    <button id="clear-feed" class="feed-btn" aria-label="Clear Feed" title="Clear">
+                        <span class="btn-symbol">X</span>
+                    </button>
                 </div>
             </header>
-            
+
             <!-- Filter Options -->
             <div id="feed-filters">
-                <select id="severity-filter" class="feed-filter" aria-label="Filter by Severity">
-                    <option value="all">All Severities</option>
-                    <option value="critical">Critical Only</option>
-                    <option value="high">High+</option>
-                    <option value="medium">Medium+</option>
-                </select>
-                <select id="status-filter" class="feed-filter" aria-label="Filter by Status">
-                    <option value="all">All Status</option>
-                    <option value="active">Active Only</option>
-                    <option value="blocked">Blocked Only</option>
-                </select>
+                <div class="filter-group">
+                    <label class="filter-label">SEV:</label>
+                    <select id="severity-filter" class="feed-filter" aria-label="Filter by Severity">
+                        <option value="all">ALL</option>
+                        <option value="critical">CRIT</option>
+                        <option value="high">HIGH+</option>
+                        <option value="medium">MED+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">STS:</label>
+                    <select id="status-filter" class="feed-filter" aria-label="Filter by Status">
+                        <option value="all">ALL</option>
+                        <option value="active">ACTIVE</option>
+                        <option value="blocked">BLOCKED</option>
+                    </select>
+                </div>
             </div>
-            
+
             <ul id="attack-list" role="log" aria-live="polite" aria-label="Attack Log">
-                <li class="attack-item-placeholder">Waiting for attack data...</li>
+                <li class="attack-item-placeholder">&gt; Awaiting threat data...</li>
             </ul>
         </aside>
     </main>
 
     <!-- Statistics Dashboard -->
     <footer id="overview-section" role="contentinfo" aria-label="Attack Statistics">
-        <h3>Threat Intelligence Dashboard</h3>
+        <div class="dashboard-header">
+            <div class="header-line"></div>
+            <h3><span class="dash-bracket">[</span> THREAT INTELLIGENCE DASHBOARD <span class="dash-bracket">]</span></h3>
+            <div class="header-line"></div>
+        </div>
         <div class="overview-content">
             <!-- Attack Type Statistics -->
-            <div id="attack-type-counts" role="region" aria-label="Attack Types">
-                <!-- Dynamically populated -->
+            <div id="attack-type-counts" class="dashboard-panel" role="region" aria-label="Attack Types">
+                <div class="panel-header">
+                    <span class="panel-icon">///</span>
+                    <span class="panel-title">ATTACK VECTORS</span>
+                </div>
+                <div class="attack-types-grid">
+                    <!-- Dynamically populated -->
+                </div>
             </div>
-            
+
             <!-- Country Statistics -->
-            <div id="country-attack-stats" role="region" aria-label="Attack Sources">
-                <h4>Top Attack Sources:</h4>
-                <!-- Dynamically populated -->
+            <div id="country-attack-stats" class="dashboard-panel" role="region" aria-label="Attack Sources">
+                <div class="panel-header">
+                    <span class="panel-icon">&lt;*&gt;</span>
+                    <span class="panel-title">SOURCE ORIGINS</span>
+                </div>
+                <div class="country-list">
+                    <!-- Dynamically populated -->
+                </div>
             </div>
-            
+
             <!-- System Status -->
-            <div id="last-attack-info" role="status" aria-label="System Status">
-                <h4>System Status:</h4>
-                <p>Last Attack: <span id="time-since-last-attack">N/A</span></p>
-                <p class="system-metrics">
-                    <span id="total-attacks">Total: 0</span>
-                    <span id="block-rate">Block Rate: 0%</span>
-                </p>
+            <div id="last-attack-info" class="dashboard-panel" role="status" aria-label="System Status">
+                <div class="panel-header">
+                    <span class="panel-icon">[!]</span>
+                    <span class="panel-title">SYSTEM STATUS</span>
+                </div>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="status-label">LAST EVENT</span>
+                        <span class="status-value" id="time-since-last-attack">--:--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">TOTAL</span>
+                        <span class="status-value" id="total-attacks">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">BLOCK RATE</span>
+                        <span class="status-value highlight" id="block-rate">0%</span>
+                    </div>
+                </div>
                 <div class="threat-level">
-                    <span class="threat-label">Threat Level:</span>
+                    <div class="threat-header">
+                        <span class="threat-label">THREAT LEVEL</span>
+                        <span class="threat-value" id="threat-level-text">NOMINAL</span>
+                    </div>
                     <div class="threat-indicator" id="threat-level-indicator">
+                        <div class="threat-bar-bg"></div>
                         <div class="threat-bar" data-level="low"></div>
+                        <div class="threat-markers">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,24 +266,39 @@
     <!-- Advanced Statistics Modal (Hidden by default) -->
     <div id="stats-modal" class="modal-overlay" role="dialog" aria-labelledby="stats-title" aria-hidden="true">
         <div class="modal-content stats-content">
-            <button class="modal-close-button" aria-label="Close Statistics">&times;</button>
-            <h2 id="stats-title">Advanced Threat Analytics</h2>
-            
+            <button class="modal-close-button" aria-label="Close Statistics">[X]</button>
+            <div class="modal-header">
+                <span class="modal-icon">&lt;/&gt;</span>
+                <h2 id="stats-title">ADVANCED THREAT ANALYTICS</h2>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Attack Timeline</h3>
+                    <div class="card-header">
+                        <span class="card-icon">[~]</span>
+                        <h3>Attack Timeline</h3>
+                    </div>
                     <canvas id="timeline-chart"></canvas>
                 </div>
                 <div class="stat-card">
-                    <h3>Top Targets</h3>
+                    <div class="card-header">
+                        <span class="card-icon">&lt;T&gt;</span>
+                        <h3>Top Targets</h3>
+                    </div>
                     <div id="targets-list"></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Attack Vectors</h3>
+                    <div class="card-header">
+                        <span class="card-icon">[V]</span>
+                        <h3>Attack Vectors</h3>
+                    </div>
                     <div id="vectors-breakdown"></div>
                 </div>
                 <div class="stat-card">
-                    <h3>Geographic Distribution</h3>
+                    <div class="card-header">
+                        <span class="card-icon">&lt;G&gt;</span>
+                        <h3>Geographic Distribution</h3>
+                    </div>
                     <div id="geo-stats"></div>
                 </div>
             </div>
@@ -186,43 +307,57 @@
 
     <!-- Disclaimer Modal -->
     <div id="disclaimer-modal" class="modal-overlay" role="dialog" aria-labelledby="disclaimer-title" aria-hidden="true">
-        <div class="modal-content">
-            <button class="modal-close-button" aria-label="Close Disclaimer">&times;</button>
-            <h2 id="disclaimer-title">⚠️ Important Disclaimer</h2>
-            <p>
-                <strong>All data displayed in MYRKUR is entirely simulated</strong> and based on approximated 
-                internet-sourced averages for illustrative and educational purposes only.
-            </p>
-            <p>
-                No real-time cyberattack data is used or represented. The events, sources, targets, 
-                and frequencies are fictional representations designed to demonstrate cybersecurity 
-                visualization concepts.
-            </p>
-            <p>
-                This project is created by <strong>Andri Petur Hafthorsson</strong> as a demonstration 
-                of web development and data visualization skills.
-            </p>
+        <div class="modal-content disclaimer-content">
+            <button class="modal-close-button" aria-label="Close Disclaimer">[X]</button>
+            <div class="modal-header">
+                <span class="modal-icon warning">[!]</span>
+                <h2 id="disclaimer-title">SECURITY NOTICE</h2>
+            </div>
+            <div class="disclaimer-body">
+                <div class="notice-block">
+                    <span class="notice-marker">&gt;</span>
+                    <p><strong>SIMULATION MODE ACTIVE</strong> - All data displayed in MYRKUR is entirely simulated
+                    and based on approximated averages for illustrative and educational purposes only.</p>
+                </div>
+                <div class="notice-block">
+                    <span class="notice-marker">&gt;</span>
+                    <p>No real-time cyberattack data is used or represented. Events, sources, targets,
+                    and frequencies are fictional representations designed to demonstrate cybersecurity
+                    visualization concepts.</p>
+                </div>
+                <div class="notice-block author-block">
+                    <span class="notice-marker">&gt;</span>
+                    <p>Developed by <strong>Andri Petur Hafthorsson</strong> // Web Development & Data Visualization</p>
+                </div>
+            </div>
             <div class="disclaimer-footer">
                 <label class="checkbox-container">
                     <input type="checkbox" id="dont-show-again">
-                    <span>Don't show this again</span>
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Do not display on startup</span>
                 </label>
-                <button id="acknowledge-btn" class="modal-button">I Understand</button>
+                <button id="acknowledge-btn" class="modal-button">
+                    <span class="btn-text">ACKNOWLEDGE</span>
+                    <span class="btn-arrow">&gt;</span>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Keyboard Shortcuts Help -->
     <div id="keyboard-help" class="help-tooltip" aria-hidden="true">
-        <h4>Keyboard Shortcuts</h4>
+        <div class="help-header">
+            <span class="help-icon">[?]</span>
+            <h4>KEYBOARD COMMANDS</h4>
+        </div>
         <ul>
-            <li><kbd>Space</kbd> - Pause/Resume Feed</li>
-            <li><kbd>C</kbd> - Clear Feed</li>
-            <li><kbd>S</kbd> - Toggle Stats</li>
-            <li><kbd>R</kbd> - Reset Map View</li>
-            <li><kbd>+/-</kbd> - Zoom In/Out</li>
-            <li><kbd>?</kbd> - Show This Help</li>
-            <li><kbd>Esc</kbd> - Close Modals</li>
+            <li><kbd>SPACE</kbd><span class="key-desc">Pause/Resume Feed</span></li>
+            <li><kbd>C</kbd><span class="key-desc">Clear Feed</span></li>
+            <li><kbd>S</kbd><span class="key-desc">Toggle Stats</span></li>
+            <li><kbd>R</kbd><span class="key-desc">Reset Map View</span></li>
+            <li><kbd>+/-</kbd><span class="key-desc">Zoom In/Out</span></li>
+            <li><kbd>?</kbd><span class="key-desc">Show This Help</span></li>
+            <li><kbd>ESC</kbd><span class="key-desc">Close Modals</span></li>
         </ul>
     </div>
 
@@ -239,12 +374,12 @@
             setTimeout(function() {
                 const loadingScreen = document.getElementById('loading-screen');
                 if (loadingScreen) {
-                    loadingScreen.style.opacity = '0';
+                    loadingScreen.classList.add('fade-out');
                     setTimeout(function() {
                         loadingScreen.style.display = 'none';
-                    }, 500);
+                    }, 800);
                 }
-            }, 1000);
+            }, 2000);
         });
     </script>
 </body>
