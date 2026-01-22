@@ -480,21 +480,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const threatText = document.getElementById('threat-level-text');
         if (threatBar && threatText) {
             // Calculate threat level based on recent activity
+            // Thresholds adjusted for MAX_MAP_LINES of 15
             const recentAttacks = displayedMapAttacks.length;
-            let threatLevel, threatWidth, threatColor;
+            let threatLevel, threatWidth;
 
-            if (recentAttacks <= 3) {
+            if (recentAttacks <= 5) {
                 threatLevel = 'NOMINAL';
-                threatWidth = '20%';
-            } else if (recentAttacks <= 6) {
+                threatWidth = '15%';
+            } else if (recentAttacks <= 9) {
                 threatLevel = 'ELEVATED';
-                threatWidth = '40%';
-            } else if (recentAttacks <= 10) {
+                threatWidth = '35%';
+            } else if (recentAttacks <= 13) {
                 threatLevel = 'HIGH';
-                threatWidth = '65%';
+                threatWidth = '60%';
             } else {
                 threatLevel = 'CRITICAL';
-                threatWidth = '90%';
+                threatWidth = '85%';
             }
 
             threatBar.style.width = threatWidth;
