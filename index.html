@@ -366,7 +366,21 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
     <script src="script.js"></script>
-    
+
+    <!-- Swetrix Analytics -->
+    <script src="https://swetrix.org/swetrix.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        swetrix.init('DtJ7d0DYXlE1', {
+          apiURL: 'https://swetrixapi.kindra.is/log',
+        })
+        swetrix.trackViews()
+      })
+    </script>
+    <noscript>
+      <img src="https://swetrixapi.kindra.is/log/noscript?pid=DtJ7d0DYXlE1" alt="" referrerpolicy="no-referrer-when-downgrade" />
+    </noscript>
+
     <!-- Loading Complete Script -->
     <script>
         // Hide loading screen when page is ready
