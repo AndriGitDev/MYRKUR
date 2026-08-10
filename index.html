@@ -369,32 +369,8 @@
 
     <!-- Swetrix Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/swetrix@4.4.0/dist/swetrix.js" integrity="sha384-FJ43Z1wutnoz28042fgO8YM6xIvC9FGaFuwKnd4THHojerDiGYd0IL1DUJycX3xE" crossorigin="anonymous" defer></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        swetrix.init('hZhMN18AbGR0', {
-          apiURL: 'https://swetrixapi.kastro.is/log',
-        })
-        swetrix.trackViews()
-      })
-    </script>
     <noscript>
       <img src="https://swetrixapi.kastro.is/log/noscript?pid=hZhMN18AbGR0" alt="" referrerpolicy="no-referrer-when-downgrade" />
     </noscript>
-
-    <!-- Loading Complete Script -->
-    <script>
-        // Hide loading screen when page is ready
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                const loadingScreen = document.getElementById('loading-screen');
-                if (loadingScreen) {
-                    loadingScreen.classList.add('fade-out');
-                    setTimeout(function() {
-                        loadingScreen.style.display = 'none';
-                    }, 800);
-                }
-            }, 2000);
-        });
-    </script>
 </body>
 </html>
