@@ -680,15 +680,6 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('MYRKUR fully initialized - All systems operational');
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    if (!window.swetrix) return;
-
-    window.swetrix.init('hZhMN18AbGR0', {
-        apiURL: 'https://swetrixapi.kastro.is/log'
-    });
-    window.swetrix.trackViews();
-});
-
 // Hide the loading screen once all page assets are ready.
 window.addEventListener('load', function () {
     setTimeout(function () {
